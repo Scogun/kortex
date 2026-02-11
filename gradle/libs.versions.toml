@@ -1,0 +1,17 @@
+[versions]
+kotlin = "2.3.0"
+ktor = "3.4.0"
+config = "1.4.5"
+koin = "4.1.1"
+
+[plugins]
+multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+[libraries]
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-client-websockets = { group = "io.ktor", name = "ktor-client-websockets", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+config = { group = "com.typesafe", name = "config", version.ref = "config" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
