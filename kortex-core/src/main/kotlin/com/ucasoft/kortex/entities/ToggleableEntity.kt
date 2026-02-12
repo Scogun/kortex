@@ -20,6 +20,8 @@ abstract class ToggleableEntity<T : StateAttributes>(
 
     suspend fun turnOff() = context.callService(domain, "turn_off", mapOf("entity_id" to JsonPrimitive(entityId)))
 
+    suspend fun toggle() = context.callService(domain, "toggle", mapOf("entity_id" to JsonPrimitive(entityId)))
+
     fun onToggled(
         block: suspend ToggleableEntity<T>.() -> Unit
     ) = onToggled(context.scope, block)

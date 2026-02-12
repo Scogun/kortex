@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.decodeFromJsonElement
 
 abstract class Entity<T: StateAttributes>(
-    protected val stateFlow: StateFlow<State>,
+    val stateFlow: StateFlow<State>,
     protected val context: KortexContext
 ) {
     val entityId = stateFlow.value.entityId

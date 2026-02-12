@@ -9,11 +9,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.config)
-                implementation(libs.koin.core)
+                api(libs.koin.core)
                 implementation(libs.ktor.client.cio)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.json)
-                api(libs.ktor.client.websockets)
+                implementation(libs.ktor.client.websockets)
             }
             kotlin.srcDir("src/main/kotlin")
         }
