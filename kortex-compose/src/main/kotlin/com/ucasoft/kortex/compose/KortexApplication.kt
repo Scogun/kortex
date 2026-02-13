@@ -94,6 +94,7 @@ fun KortexApplication(
                                     error = null
                                 )
                             }
+                            else -> println(result)
                         }
                     },
                     {

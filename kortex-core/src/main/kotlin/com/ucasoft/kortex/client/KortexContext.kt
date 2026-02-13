@@ -8,8 +8,10 @@ import com.ucasoft.kortex.client.requests.RequestType
 import com.ucasoft.kortex.client.requests.SubscribeEventRequest
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.JsonElement
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 class KortexContext(private val session: DefaultClientWebSocketSession, internal val scope: CoroutineScope) {
@@ -19,21 +21,43 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
     private val nextId
         get() = id.incrementAndGet()
 
-    private val requestIds = mutableMapOf<Int, RequestType>()
+    private val requestIds = ConcurrentHashMap<Int, RequestType>()
+    private val pendingRequests = ConcurrentHashMap<Int, CompletableDeferred<ContextResponse>>()
 
-    suspend fun callService(domain: String, service: String, data: Map<String, JsonElement> = emptyMap(), returnResponse: Boolean? = null): Int {
+    suspend fun callService(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()): Int {
         val id = request(
             CallServiceRequest(
                 callId = nextId,
                 domain = domain,
                 service = service,
-                data = data,
-                returnResponse = returnResponse
+                data = data
             )
         )
 
         requestIds[id] = RequestType.CALL_SERVICE
         return id
+    }
+
+    suspend fun callServiceWithResponse(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()) : ContextResponse {
+        val id = nextId
+        val deferred = CompletableDeferred<ContextResponse>()
+        pendingRequests[id] = deferred
+
+        request(
+            CallServiceRequest(
+                callId = id,
+                domain = domain,
+                service = service,
+                data = data,
+                returnResponse = true
+            )
+        )
+
+        try {
+            return deferred.await()
+        } finally {
+            pendingRequests.remove(id)
+        }
     }
 
     suspend fun getStates(): Int {
@@ -65,6 +89,10 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
     }
 
     internal fun getRequestType(id: Int) = requestIds.remove(id)
+
+    internal fun onPendingResult(id: Int, result: ContextResponse) =
+        pendingRequests.remove(id)?.complete(result) ?: false
+
 
     private suspend inline fun <reified T : Request> request(request: T): Int {
         session.sendSerialized(request)

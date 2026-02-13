@@ -68,8 +68,10 @@ class KortexClient : KoinComponent {
                                             json.decodeFromJsonElement<List<State>>(response.result!!)
                                         )
                                     }
-
-                                    else -> {}
+                                    null -> context.onPendingResult(response.id, json.decodeFromJsonElement<ContextResponse>(response.result!!))
+                                    else -> {
+                                        println("Request ${response.id} result: ${response.result}")
+                                    }
                                 }
                             } else {
                                 println("Request ${response.id} failed: ${response.message}")
