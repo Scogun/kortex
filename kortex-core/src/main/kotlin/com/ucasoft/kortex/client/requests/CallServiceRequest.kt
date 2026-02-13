@@ -14,5 +14,5 @@ data class CallServiceRequest(
     @SerialName("service_data")
     val data: Map<String, JsonElement>,
     @SerialName("return_response")
-    val returnResponse: Boolean? = null
+    val returnResponse: Boolean = false
 ): Request(callId, type = "call_service")
