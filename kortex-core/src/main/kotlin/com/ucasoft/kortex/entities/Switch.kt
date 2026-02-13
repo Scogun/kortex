@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
 
 class Switch(stateFlow: StateFlow<State>, context: KortexContext): ToggleableEntity<SwitchAttributes>(stateFlow, context) {
 
-    override val attributes
-        get() = stateFlow.value.getAttributeAs<SwitchAttributes>()
+    override val attributesFlow = mapAttributes<SwitchAttributes>()
 }
 
 @Serializable

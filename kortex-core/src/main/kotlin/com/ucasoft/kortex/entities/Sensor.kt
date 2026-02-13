@@ -7,8 +7,7 @@ import kotlinx.serialization.Serializable
 
 class Sensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<SensorAttributes>(stateFlow, context) {
 
-    override val attributes
-        get() = stateFlow.value.getAttributeAs<SensorAttributes>()
+    override val attributesFlow = mapAttributes<SensorAttributes>()
 }
 
 @Serializable

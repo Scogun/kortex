@@ -24,9 +24,9 @@ class Entities(
 
     val timers by lazy { mapEntities(::Timer) }
 
-    private inline fun <reified T> mapEntities(noinline factory: (StateFlow<State>, KortexContext) -> T) =
+    private inline fun <reified T> mapEntities(noinline factory: (StateFlow<State>, KortexContext) -> T, domain: String = T::class.simpleName!!.lowercase()) =
         entityIds.asSequence()
-            .filter { it.substringBefore('.') == T::class.simpleName!!.lowercase() }
+            .filter { it.substringBefore('.') == domain }
             .map { id ->
                 val state = states.mapNotNull { it[id] }.stateIn(
                     context.scope,

@@ -21,8 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class Timer(stateFlow: StateFlow<State>, context: KortexContext) : Entity<TimerAttributes>(stateFlow, context) {
 
-    override val attributes
-        get() = stateFlow.value.getAttributeAs<TimerAttributes>()
+    override val attributesFlow = mapAttributes<TimerAttributes>()
 
     val isActive
         get() = stateFlow.value.state == "active"

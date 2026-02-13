@@ -20,11 +20,10 @@ import kotlin.time.Instant
 
 class Calendar(stateFlow: StateFlow<State>, context: KortexContext) : Entity<CalendarAttributes>(stateFlow, context) {
 
+    override val attributesFlow = mapAttributes<CalendarAttributes>()
+
     val isEventHappening
         get() = stateFlow.value.state == "on"
-
-    override val attributes: CalendarAttributes
-        get() = stateFlow.value.getAttributeAs<CalendarAttributes>()
 
     val isCreateEventSupported = ((attributes.supportedFeatures ?: 0) and CREATE_EVENT) != 0
     val isDeleteEventSupported = ((attributes.supportedFeatures ?: 0) and DELETE_EVENT) != 0

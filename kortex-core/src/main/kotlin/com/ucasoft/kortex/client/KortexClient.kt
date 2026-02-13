@@ -59,8 +59,8 @@ class KortexClient : KoinComponent {
                         }
 
                         "result" -> {
-                            if (response.success == true) {
-                                val requestType = context.getRequestType(response.id!!)
+                            if (response.success == true && response.id != null) {
+                                val requestType = context.getRequestType(response.id)
                                 when (requestType) {
                                     RequestType.GET_STATES -> {
                                         onResult(
@@ -68,7 +68,7 @@ class KortexClient : KoinComponent {
                                             json.decodeFromJsonElement<List<State>>(response.result!!)
                                         )
                                     }
-                                    null -> context.onPendingResult(response.id, json.decodeFromJsonElement<ContextResponse>(response.result!!))
+                                    null -> response.result?.let { context.onPendingResult(response.id, json.decodeFromJsonElement<ContextResponse>(it)) }
                                     else -> {
                                         println("Request ${response.id} result: ${response.result}")
                                     }

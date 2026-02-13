@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
 
 class Button(stateFlow: StateFlow<State>, context: KortexContext): Entity<ButtonAttributes>(stateFlow, context) {
 
-    override val attributes
-        get() = stateFlow.value.getAttributeAs<ButtonAttributes>()
+    override val attributesFlow = mapAttributes<ButtonAttributes>()
 }
 
 @Serializable

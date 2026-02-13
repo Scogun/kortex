@@ -7,8 +7,7 @@ import kotlinx.serialization.Serializable
 
 class Light(stateFlow: StateFlow<State>, context: KortexContext): ToggleableEntity<LightAttributes>(stateFlow, context) {
 
-    override val attributes
-        get() = stateFlow.value.getAttributeAs<LightAttributes>()
+    override val attributesFlow = mapAttributes<LightAttributes>()
 
     val isBrightnessSupported = (attributes.supportedFeatures and SUPPORT_BRIGHTNESS) != 0
     val isColorTempSupported = (attributes.supportedFeatures and SUPPORT_COLOR_TEMP) != 0

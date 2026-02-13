@@ -17,7 +17,10 @@ abstract class Entity<T: StateAttributes>(
 
     val domain = entityId.substringBefore('.')
 
-    abstract val attributes: T
+    val attributes
+        get() = attributesFlow.value
+
+    protected abstract val attributesFlow: StateFlow<T>
 
     inline fun <reified T : StateAttributes> getAttributeAs(): T = json.decodeFromJsonElement(attributesJson())
 
@@ -31,6 +34,19 @@ abstract class Entity<T: StateAttributes>(
             started = SharingStarted.Eagerly,
             mapper(stateFlow.value)
         )
+
+    protected inline fun <reified A : T> mapAttributes(): StateFlow<A> =
+        stateFlow.map { it.attributes }
+            .distinctUntilChanged()
+            .map { json.decodeFromJsonElement<A>(it) }
+            .stateIn(
+                getScope(),
+                SharingStarted.Eagerly,
+                stateFlow.value.getAttributeAs<A>()
+            )
+
+    @PublishedApi
+    internal fun getScope() = context.scope
 
     @PublishedApi
     internal fun attributesJson() = stateFlow.value.attributes
