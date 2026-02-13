@@ -21,13 +21,14 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
 
     private val requestIds = mutableMapOf<Int, RequestType>()
 
-    suspend fun callService(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()): Int {
+    suspend fun callService(domain: String, service: String, data: Map<String, JsonElement> = emptyMap(), returnResponse: Boolean? = null): Int {
         val id = request(
             CallServiceRequest(
                 callId = nextId,
                 domain = domain,
                 service = service,
-                data = data
+                data = data,
+                returnResponse = returnResponse
             )
         )
 

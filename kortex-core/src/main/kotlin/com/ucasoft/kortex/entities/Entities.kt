@@ -14,6 +14,8 @@ class Entities(
 
     val buttons by lazy { mapEntities(::Button) }
 
+    val calendars by lazy { mapEntities(::Calendar) }
+
     val lights by lazy { mapEntities(::Light) }
 
     val sensors by lazy { mapEntities(::Sensor) }
