@@ -20,11 +20,15 @@ class Entities(
 
     val lights by lazy { mapEntities(::Light) }
 
+    val persons by lazy { mapEntities(::Person) }
+
     val sensors by lazy { mapEntities(::Sensor) }
 
     val switches by lazy { mapEntities(::Switch) }
 
     val timers by lazy { mapEntities(::Timer) }
+
+    val zones by lazy { mapEntities(::Zone) }
 
     private inline fun <reified T> mapEntities(noinline factory: (StateFlow<State>, KortexContext) -> T, domain: String = T::class.simpleName!!.lowercase()) =
         entityIds.asSequence()
