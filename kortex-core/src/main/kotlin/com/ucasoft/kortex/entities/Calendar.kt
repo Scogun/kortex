@@ -25,9 +25,9 @@ class Calendar(stateFlow: StateFlow<State>, context: KortexContext) : Entity<Cal
     val isEventHappening
         get() = stateFlow.value.state == "on"
 
-    val isCreateEventSupported = ((attributes.supportedFeatures ?: 0) and CREATE_EVENT) != 0
-    val isDeleteEventSupported = ((attributes.supportedFeatures ?: 0) and DELETE_EVENT) != 0
-    val isUpdateEventSupported = ((attributes.supportedFeatures ?: 0) and UPDATE_EVENT) != 0
+    val isCreateEventSupported = (attributes.supportedFeatures and CREATE_EVENT) != 0
+    val isDeleteEventSupported = (attributes.supportedFeatures and DELETE_EVENT) != 0
+    val isUpdateEventSupported = (attributes.supportedFeatures and UPDATE_EVENT) != 0
 
     suspend fun getEvents(start: Instant = Clock.System.now(), end: Instant = start.plus(1.days)): List<CalendarEvent> {
         val events = context.callServiceWithResponse(
@@ -63,9 +63,7 @@ class CalendarAttributes(
     @SerialName("start_time")
     @Serializable(with = InstantSerializer::class)
     val startTime: Instant? = null,
-    @SerialName("supported_features")
-    val supportedFeatures: Int? = null
-) : StateAttributes()
+) : FeaturedAttributes()
 
 
 object InstantSerializer : KSerializer<Instant> {

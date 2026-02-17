@@ -34,6 +34,4 @@ open class LightAttributes(
     val colorMode: String? = null,
     @SerialName("supported_color_modes")
     val supportedColorModes: List<String>,
-    @SerialName("supported_features")
-    val supportedFeatures: Int
-): StateAttributes()
+): FeaturedAttributes()
