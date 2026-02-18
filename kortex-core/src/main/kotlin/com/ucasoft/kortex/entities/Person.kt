@@ -16,8 +16,8 @@ data class PersonAttributes(
     @SerialName("device_trackers")
     val deviceTrackers: List<String>,
     val editable: Boolean,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val source: String,
     @SerialName("user_id")
     val userId: String? = null,
