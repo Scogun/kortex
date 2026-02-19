@@ -18,13 +18,9 @@ import org.koin.core.component.inject
 
 class KortexClient : KoinComponent {
 
-    private val config by inject<ClientConfig>()
+    private val cio by inject<HttpClient>()
 
-    private val cio = HttpClient(CIO) {
-        install(WebSockets) {
-            contentConverter = KotlinxWebsocketSerializationConverter(json)
-        }
-    }
+    private val config by inject<ClientConfig>()
 
     suspend fun connect(
         onAuthenticated: suspend (context: KortexContext) -> Unit,

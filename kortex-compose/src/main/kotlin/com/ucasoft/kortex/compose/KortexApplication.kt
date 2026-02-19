@@ -1,18 +1,12 @@
 package com.ucasoft.kortex.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import com.ucasoft.kortex.client.ClientConfig
 import com.ucasoft.kortex.client.KortexClient
 import com.ucasoft.kortex.client.KortexContext
 import com.ucasoft.kortex.client.requests.EventType
-import com.ucasoft.kortex.config.ConfigLoader
+import com.ucasoft.kortex.di.configModule
+import com.ucasoft.kortex.di.webSocketClient
 import com.ucasoft.kortex.entities.Entities
 import com.ucasoft.kortex.entities.State
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +18,6 @@ import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
-
-val configModule = module {
-    single { ConfigLoader.load() }
-}
 
 val LocalKortexApplication = staticCompositionLocalOf<KortexApplicationState> {
     error("Kortex Application state not found. Please wrap your application in KortexMultiplatformApplication.")
@@ -51,7 +41,9 @@ fun KortexApplication(
 ) {
     KoinMultiplatformApplication(
         config = koinConfiguration {
-            val updatedModules = modules.toMutableList().also { it.add(0, configModule) }
+            val updatedModules = modules.toMutableList().also {
+                it.addAll(0, listOf(configModule, webSocketClient))
+            }
             modules(updatedModules)
         }
     ) {

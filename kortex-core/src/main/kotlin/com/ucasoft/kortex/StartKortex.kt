@@ -4,6 +4,8 @@ import com.ucasoft.kortex.client.KortexClient
 import com.ucasoft.kortex.client.KortexContext
 import com.ucasoft.kortex.client.requests.EventType
 import com.ucasoft.kortex.config.ConfigLoader
+import com.ucasoft.kortex.di.configModule
+import com.ucasoft.kortex.di.webSocketClient
 import com.ucasoft.kortex.entities.Entities
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
@@ -18,14 +20,8 @@ suspend fun startKortex(
     onResult: suspend (requestId: Int, result: Any) -> Unit = { _, _ -> },
     onEvent: suspend (event: Event) -> Unit
 ) {
-
-    val config = ConfigLoader.load()
-    val configModule = module {
-        single { config }
-    }
-
     startKoin {
-        modules(configModule)
+        modules(configModule, webSocketClient)
     }
 
     KortexClient().connect(onAuthenticated, onResult, onEvent)
