@@ -5,9 +5,7 @@ import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
 import com.ucasoft.kortex.json
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
-import io.ktor.serialization.kotlinx.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

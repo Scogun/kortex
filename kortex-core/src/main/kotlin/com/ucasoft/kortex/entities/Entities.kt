@@ -18,6 +18,8 @@ class Entities(
 
     val deviceTrackers by lazy { mapEntities(::DeviceTracker, "device_tracker") }
 
+    val fans by lazy { mapEntities(::Fan) }
+
     val lights by lazy { mapEntities(::Light) }
 
     val mediaPlayers by lazy { mapEntities(::MediaPlayer, "media_player") }
