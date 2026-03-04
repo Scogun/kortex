@@ -24,6 +24,8 @@ class Entities(
 
     val fans by lazy { mapEntities(::Fan) }
 
+    val images by lazy { mapEntities(::Image) }
+
     val lights by lazy { mapEntities(::Light) }
 
     val mediaPlayers by lazy { mapEntities(::MediaPlayer, "media_player") }
