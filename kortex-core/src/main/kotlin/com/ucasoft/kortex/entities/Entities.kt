@@ -18,6 +18,8 @@ class Entities(
 
     val calendars by lazy { mapEntities(::Calendar) }
 
+    val covers by lazy { mapEntities(::Cover) }
+
     val deviceTrackers by lazy { mapEntities(::DeviceTracker, "device_tracker") }
 
     val fans by lazy { mapEntities(::Fan) }
