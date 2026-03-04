@@ -9,6 +9,20 @@ import kotlin.time.Instant
 class Sensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<SensorAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<SensorAttributes>()
+
+    inline fun <reified T> getStateAs(): T? {
+        val rawValue = stateFlow.value.state.takeIf { it.isNotBlank() }.takeIf { it != "unknown" && it != "unavailable" } ?: return null
+
+        return when (T::class) {
+            String::class -> rawValue
+            Boolean::class -> rawValue.toBooleanStrictOrNull()
+            Int::class -> rawValue.toIntOrNull()
+            Long::class -> rawValue.toLongOrNull()
+            Double::class -> rawValue.toDoubleOrNull()
+            Instant::class -> runCatching { Instant.parse(rawValue) }.getOrNull()
+            else -> null
+        } as T?
+    }
 }
 
 @Serializable

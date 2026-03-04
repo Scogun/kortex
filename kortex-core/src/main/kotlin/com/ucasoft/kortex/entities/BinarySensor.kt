@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 class BinarySensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<BinarySensorAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<BinarySensorAttributes>()
+
+    val isOn
+        get() = if (stateFlow.value.state == "unavailable") null else stateFlow.value.state == "on"
 }
 
 @Serializable
