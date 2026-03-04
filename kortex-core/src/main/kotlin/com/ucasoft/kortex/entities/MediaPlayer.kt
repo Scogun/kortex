@@ -4,25 +4,11 @@ import com.ucasoft.kortex.client.KortexContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.time.Clock
 import kotlin.time.Instant
 
 class MediaPlayer(stateFlow: StateFlow<State>, context: KortexContext): Entity<MediaPlayerAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<MediaPlayerAttributes>()
-
-    val mediaPosition
-        get() = if (attributes.mediaPosition == null) {
-            null
-        } else {
-            if (stateFlow.value.state == "playing") {
-                val position = attributes.mediaPosition!!
-                val updatedAt = attributes.mediaPositionUpdatedAt!!
-                position + (Clock.System.now() - updatedAt).inWholeSeconds
-            } else {
-                attributes.mediaPosition!!
-            }
-        }
 
     val supportPause = (attributes.supportedFeatures and PAUSE) != 0
     val supportSeek = (attributes.supportedFeatures and SEEK) != 0
@@ -54,7 +40,6 @@ class MediaPlayer(stateFlow: StateFlow<State>, context: KortexContext): Entity<M
         const val VOLUME_MUTE = 8
         const val PREVIOUS_TRACK = 16
         const val NEXT_TRACK = 32
-
         const val TURN_ON = 128
         const val TURN_OFF = 256
         const val PLAY_MEDIA = 512
