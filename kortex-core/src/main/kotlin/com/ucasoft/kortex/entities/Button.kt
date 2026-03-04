@@ -11,10 +11,7 @@ class Button(stateFlow: StateFlow<State>, context: KortexContext): Entity<Button
 }
 
 @Serializable
-open class ButtonAttributes(
-    @SerialName("device_class")
-    val deviceClass: ButtonDeviceClass? = null
-): StateAttributes()
+open class ButtonAttributes: DeviceClassAttributes<ButtonDeviceClass>()
 
 enum class ButtonDeviceClass {
     IDENTIFY,

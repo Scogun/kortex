@@ -12,6 +12,8 @@ class Entities(
 ) {
     private val entityIds = states.value.keys
 
+    val binarySensors by lazy { mapEntities(::BinarySensor, "binary_sensor") }
+
     val buttons by lazy { mapEntities(::Button) }
 
     val calendars by lazy { mapEntities(::Calendar) }
