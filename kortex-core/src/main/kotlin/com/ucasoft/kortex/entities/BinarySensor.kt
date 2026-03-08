@@ -9,7 +9,7 @@ class BinarySensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<
     override val attributesFlow = mapAttributes<BinarySensorAttributes>()
 
     val isOn
-        get() = if (stateFlow.value.state == "unavailable") null else stateFlow.value.state == "on"
+        get() = if (state == "unavailable") null else state == "on"
 }
 
 @Serializable

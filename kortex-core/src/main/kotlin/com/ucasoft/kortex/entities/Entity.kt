@@ -17,6 +17,9 @@ abstract class Entity<T: StateAttributes>(
 
     val domain = entityId.substringBefore('.')
 
+    val state
+        get() = stateFlow.value.state
+
     val attributes
         get() = attributesFlow.value
 

@@ -23,7 +23,7 @@ class Calendar(stateFlow: StateFlow<State>, context: KortexContext) : Entity<Cal
     override val attributesFlow = mapAttributes<CalendarAttributes>()
 
     val isEventHappening
-        get() = stateFlow.value.state == "on"
+        get() = state == "on"
 
     val isCreateEventSupported = (attributes.supportedFeatures and CREATE_EVENT) != 0
     val isDeleteEventSupported = (attributes.supportedFeatures and DELETE_EVENT) != 0

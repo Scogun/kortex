@@ -11,7 +11,7 @@ class Sensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<Sensor
     override val attributesFlow = mapAttributes<SensorAttributes>()
 
     inline fun <reified T> getStateAs(): T? {
-        val rawValue = stateFlow.value.state.takeIf { it.isNotBlank() }.takeIf { it != "unknown" && it != "unavailable" } ?: return null
+        val rawValue = state.takeIf { it.isNotBlank() }.takeIf { it != "unknown" && it != "unavailable" } ?: return null
 
         return when (T::class) {
             String::class -> rawValue

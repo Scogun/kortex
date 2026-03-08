@@ -24,10 +24,10 @@ class Timer(stateFlow: StateFlow<State>, context: KortexContext) : Entity<TimerA
     override val attributesFlow = mapAttributes<TimerAttributes>()
 
     val isActive
-        get() = stateFlow.value.state == "active"
+        get() = state == "active"
 
     val isPaused
-        get() = stateFlow.value.state == "paused"
+        get() = state == "paused"
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun start(duration: Duration? = null) = context.callService(
