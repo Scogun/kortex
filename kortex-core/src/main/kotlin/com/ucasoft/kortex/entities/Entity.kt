@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
 
 abstract class Entity<T: StateAttributes>(
@@ -24,6 +26,10 @@ abstract class Entity<T: StateAttributes>(
         get() = attributesFlow.value
 
     protected abstract val attributesFlow: StateFlow<T>
+
+    protected suspend fun callService(service: String, data: Map<String, JsonElement> = mapOf("entity_id" to JsonPrimitive(entityId))) {
+        context.callService(domain, service, data)
+    }
 
     inline fun <reified T : StateAttributes> getAttributeAs(): T = json.decodeFromJsonElement(attributesJson())
 

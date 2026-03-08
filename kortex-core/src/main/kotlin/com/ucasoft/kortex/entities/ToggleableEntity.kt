@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.serialization.json.JsonPrimitive
 
 abstract class ToggleableEntity<T : StateAttributes>(
     stateFlow: StateFlow<State>,
@@ -16,11 +15,11 @@ abstract class ToggleableEntity<T : StateAttributes>(
     val isOn
         get() = state == "on"
 
-    suspend fun turnOn() = context.callService(domain, "turn_on", mapOf("entity_id" to JsonPrimitive(entityId)))
+    suspend fun turnOn() = callService("turn_on")
 
-    suspend fun turnOff() = context.callService(domain, "turn_off", mapOf("entity_id" to JsonPrimitive(entityId)))
+    suspend fun turnOff() = callService("turn_off")
 
-    suspend fun toggle() = context.callService(domain, "toggle", mapOf("entity_id" to JsonPrimitive(entityId)))
+    suspend fun toggle() = callService("toggle")
 
     fun onToggled(
         block: suspend ToggleableEntity<T>.() -> Unit
