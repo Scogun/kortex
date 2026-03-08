@@ -10,9 +10,12 @@ import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonElement
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class KortexContext(private val session: DefaultClientWebSocketSession, internal val scope: CoroutineScope) {
 
@@ -38,7 +41,7 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
         return id
     }
 
-    suspend fun callServiceWithResponse(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()) : ContextResponse {
+    suspend fun callServiceWithResponse(domain: String, service: String, data: Map<String, JsonElement> = emptyMap(), timeout: Duration = 1.seconds) : ContextResponse {
         val id = nextId
         requestIds[id] = RequestType.PENDING_REQUEST
         val deferred = CompletableDeferred<ContextResponse>()
@@ -55,9 +58,15 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
         )
 
         try {
-            return deferred.await()
+            return withTimeout(timeout) {
+                deferred.await()
+            }
         } finally {
             pendingRequests.remove(id)
+            requestIds.remove(id)
+            if (deferred.isActive) {
+                deferred.cancel()
+            }
         }
     }
 
