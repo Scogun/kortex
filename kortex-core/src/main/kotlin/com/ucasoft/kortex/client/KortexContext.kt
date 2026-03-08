@@ -40,6 +40,7 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
 
     suspend fun callServiceWithResponse(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()) : ContextResponse {
         val id = nextId
+        requestIds[id] = RequestType.PENDING_REQUEST
         val deferred = CompletableDeferred<ContextResponse>()
         pendingRequests[id] = deferred
 

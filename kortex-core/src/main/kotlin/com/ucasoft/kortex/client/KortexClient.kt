@@ -62,7 +62,14 @@ class KortexClient : KoinComponent {
                                             json.decodeFromJsonElement<List<State>>(response.result!!)
                                         )
                                     }
-                                    null -> response.result?.let { context.onPendingResult(response.id, json.decodeFromJsonElement<ContextResponse>(it)) }
+
+                                    RequestType.PENDING_REQUEST -> response.result?.let {
+                                        context.onPendingResult(
+                                            response.id,
+                                            json.decodeFromJsonElement<ContextResponse>(it)
+                                        )
+                                    }
+
                                     else -> {
                                         println("Request ${response.id} result: ${response.result}")
                                     }
