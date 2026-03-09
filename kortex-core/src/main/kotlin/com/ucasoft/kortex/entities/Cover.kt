@@ -4,6 +4,7 @@ import com.ucasoft.kortex.client.KortexContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
 
 class Cover(stateFlow: StateFlow<State>, context: KortexContext): Entity<CoverAttributes>(stateFlow, context) {
 
@@ -17,6 +18,39 @@ class Cover(stateFlow: StateFlow<State>, context: KortexContext): Entity<CoverAt
     val isCloseTiltSupported = (attributes.supportedFeatures and CLOSE_TILT) != 0
     val isStopTiltSupported = (attributes.supportedFeatures and STOP_TILT) != 0
     val isSetTiltPositionSupported = (attributes.supportedFeatures and SET_TILT_POSITION) != 0
+
+    suspend fun open() {
+        if (!isOpenSupported) {
+            throw UnsupportedOperationException("Cover does not support open")
+        }
+        callService("open")
+    }
+
+    suspend fun close() {
+        if (!isCloseSupported) {
+            throw UnsupportedOperationException("Cover does not support close")
+        }
+        callService("close")
+    }
+
+    suspend fun setPosition(position: Int) {
+        if (!isSetPositionSupported) {
+            throw UnsupportedOperationException("Cover does not support set position")
+        }
+
+        require(position in 0..100) {
+            "Position must be between 0 and 100"
+        }
+
+        callService("set_position", "position" to JsonPrimitive(position))
+    }
+
+    suspend fun stop() {
+        if (!isStopSupported) {
+            throw UnsupportedOperationException("Cover does not support stop")
+        }
+        callService("stop")
+    }
 
     private companion object {
         const val OPEN = 1

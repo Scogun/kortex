@@ -27,8 +27,12 @@ abstract class Entity<T: StateAttributes>(
 
     protected abstract val attributesFlow: StateFlow<T>
 
-    protected suspend fun callService(service: String, data: Map<String, JsonElement> = mapOf("entity_id" to JsonPrimitive(entityId))) {
-        context.callService(domain, service, data)
+    protected suspend fun callService(service: String, vararg params: Pair<String, JsonElement>) {
+        callService(service, params.toMap())
+    }
+
+    protected suspend fun callService(service: String, data: Map<String, JsonElement> = emptyMap()) {
+        context.callService(domain, service, mapOf("entity_id" to JsonPrimitive(entityId)) + data)
     }
 
     inline fun <reified T : StateAttributes> getAttributeAs(): T = json.decodeFromJsonElement(attributesJson())
