@@ -13,7 +13,7 @@ abstract class ToggleableEntity<T : StateAttributes>(
 ) : Entity<T>(stateFlow, context) {
 
     val isOn
-        get() = state == "on"
+        get() = state != "off"
 
     suspend fun turnOn() = callService("turn_on")
 

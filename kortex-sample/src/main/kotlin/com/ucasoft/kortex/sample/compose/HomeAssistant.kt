@@ -24,6 +24,7 @@ private enum class HomeTab(val title: String) {
     BINARY_SENSORS("Binary Sensors"),
     BUTTONS("Buttons"),
     CALENDARS("Calendars"),
+    CLIMATES("Climates"),
     COVERS("Covers"),
     DEVICES("Devices"),
     FANS("Fans"),
@@ -75,6 +76,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
                 HomeTab.BINARY_SENSORS -> EntityList(state.entities!!.binarySensors)
                 HomeTab.BUTTONS -> ButtonList(state.entities!!.buttons)
                 HomeTab.CALENDARS -> Calendars(state.entities!!.calendars)
+                HomeTab.CLIMATES -> ToggleableEntityList(state.entities!!.climates)
                 HomeTab.COVERS -> EntityList(state.entities!!.covers)
                 HomeTab.DEVICES -> EntityList(state.entities!!.deviceTrackers)
                 HomeTab.FANS -> ToggleableEntityList(state.entities!!.fans)
