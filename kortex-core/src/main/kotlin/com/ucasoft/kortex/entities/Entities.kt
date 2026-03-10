@@ -42,6 +42,8 @@ class Entities(
 
     val timers by lazy { mapEntities(::Timer) }
 
+    val vacuums by lazy { mapEntities(::Vacuum) }
+
     val zones by lazy { mapEntities(::Zone) }
 
     private inline fun <reified T> mapEntities(noinline factory: (StateFlow<State>, KortexContext) -> T, domain: String = T::class.simpleName!!.lowercase()) =

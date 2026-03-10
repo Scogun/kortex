@@ -36,6 +36,7 @@ private enum class HomeTab(val title: String) {
     SENSOR("Sensor"),
     SWITCH("Switch"),
     TIMER("Timer"),
+    VACUUMS("Vacuums"),
     ZONE("Zone")
 }
 
@@ -88,6 +89,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
                 HomeTab.SENSOR -> Sensors(state.entities!!.sensors)
                 HomeTab.SWITCH -> ToggleableEntityList(state.entities!!.switches)
                 HomeTab.TIMER -> EntityList(state.entities!!.timers)
+                HomeTab.VACUUMS -> EntityList(state.entities!!.vacuums)
                 HomeTab.ZONE -> EntityList(state.entities!!.zones)
             }
         }
