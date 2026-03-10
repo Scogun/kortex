@@ -18,8 +18,8 @@ It provides typed entities, reactive state streams, and Compose integration for 
   * [Run](#run)
 * [Usage](#usage)
   * [Observable Startup](#observable-startup)
-  * [Live Terminal Status Table](#live-terminal-status-table)
-* [Development](#development)
+    * [Live Terminal Status Table](#live-terminal-status-table)
+  * [Compose Startup](#compose-startup)
 * [License](#license)
 ---
 
@@ -71,7 +71,7 @@ From the repository root:
 cd %Source_Folder%\kortex
 ```
 
-Run the desktop Compose sample(`com.ucasoft.kortex.sample.compose.MainKt`):
+Run the desktop Compose sample (`com.ucasoft.kortex.sample.compose.MainKt`):
 ```powershell
 .\gradlew :kortex-sample:jvmRun -DmainClass="com.ucasoft.kortex.sample.compose.MainKt"
 ```
