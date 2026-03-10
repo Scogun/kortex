@@ -36,6 +36,8 @@ class Entities(
 
     val persons by lazy { mapEntities(::Person) }
 
+    val selects by lazy { mapEntities(::Select) }
+
     val sensors by lazy { mapEntities(::Sensor) }
 
     val switches by lazy { mapEntities(::Switch) }

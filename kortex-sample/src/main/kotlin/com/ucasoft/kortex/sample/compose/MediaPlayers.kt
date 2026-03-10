@@ -17,7 +17,6 @@ import com.ucasoft.kortex.entities.MediaPlayer
 
 @Composable
 internal fun MediaPlayers(mediaPlayers: List<MediaPlayer>) {
-
     LazyColumn {
         items(mediaPlayers) {
             MediaPlayer(it)
