@@ -14,3 +14,4 @@ rootProject.name = "kortex"
 
 include(":kortex-compose")
 include(":kortex-core")
+include(":kortex-sample")
