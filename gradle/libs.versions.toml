@@ -4,6 +4,9 @@ ktor = "3.4.1"
 config = "1.4.6"
 koin = "4.1.1"
 compose = "1.10.2"
+material3 = "1.9.0"
+material-icons = "1.7.3"
+coil = "3.4.0"
 kotest = "6.1.5"
 
 [plugins]
@@ -25,4 +28,8 @@ koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = 
 koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
 compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "compose" }
 compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose" }
+compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "material3" }
+compose-material-icons = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "material-icons" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }

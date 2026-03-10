@@ -30,6 +30,7 @@ It provides typed entities, reactive state streams, and Compose integration for 
 * Kotlin Multiplatform structure
 * Compose integration module for JVM desktop UI
 * Sample app with:
+  * desktop Compose UI
   * terminal table with live status updates
 
 ## Supported Targets
@@ -41,7 +42,7 @@ It provides typed entities, reactive state streams, and Compose integration for 
 * `kortex-compose`
   * Compose integration utilities/components over `kortex-core`
 * `kortex-sample`
-  * runnable examples (terminal)
+  * runnable examples (desktop + terminal)
 
 ## Quick Start
 ### Requirements
@@ -70,9 +71,14 @@ From the repository root:
 cd %Source_Folder%\kortex
 ```
 
+Run the desktop Compose sample(`com.ucasoft.kortex.sample.compose.MainKt`):
+```powershell
+.\gradlew :kortex-sample:jvmRun -DmainClass="com.ucasoft.kortex.sample.compose.MainKt"
+```
+
 Run terminal status table sample (`com.ucasoft.kortex.sample.MainKt`):
 ```powershell
-.\gradlew :kortex-sample:hotRunJvm --mainClass=com.ucasoft.kortex.sample.MainKt --console=plain -q
+.\gradlew :kortex-sample:jvmRun -DmainClass="com.ucasoft.kortex.sample.MainKt" --console=plain -q
 ```
 
 Use `--console=plain` to prevent Gradle progress UI from injecting lines into live table output.
@@ -90,7 +96,7 @@ suspend fun main() {
 }
 ```
 
-### Live Terminal Status Table
+#### Live Terminal Status Table
 The sample includes a terminal table printer that:
 * shows `friendlyName` and `status`
 * updates rows on `onToggled` events
@@ -98,15 +104,40 @@ The sample includes a terminal table printer that:
 
 For the best behavior, run in a real terminal (PowerShell or Windows Terminal), not IDE run output.
 
-## Development
-Build all modules:
-```powershell
-.\gradlew build --console=plain
-```
+### Compose Startup
+```kotlin
+import com.ucasoft.kortex.startKortexCompose
 
-List tasks:
-```powershell
-.\gradlew :kortex-sample:tasks --all --console=plain
+fun main() = application {
+  Window(
+    onCloseRequest = ::exitApplication,
+    state = rememberWindowState(width = 1024.dp, height = 768.dp)
+  ) {
+      KortexApplication(token, host) {
+
+          val state = LocalKortexApplication.current
+
+          when {
+              state.error != null -> {
+                  Text(state.error!!)
+              }
+
+              state.isLoading -> {
+                  Box(
+                      modifier = Modifier.fillMaxSize(),
+                      contentAlignment = Alignment.Center
+                  ) {
+                      CircularProgressIndicator()
+                  }
+              }
+
+              else -> {
+                  HomeAssistant(state)
+              }
+          }
+      }
+  }
+}
 ```
 
 ## License

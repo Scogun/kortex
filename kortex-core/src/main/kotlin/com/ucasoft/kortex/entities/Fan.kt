@@ -32,7 +32,7 @@ open class FanAttributes(
     @SerialName("current_direction")
     val currentDirection: String? = null,
     val oscillating: Boolean? = null,
-    val percentage: Int? = null,
+    val percentage: Int? = 0,
     @SerialName("preset_mode")
     val presetMode: String? = null,
     @SerialName("preset_modes")
