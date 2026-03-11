@@ -15,7 +15,6 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.material.icons)
                 implementation(kotlin("reflect"))
-                implementation(libs.koin.compose)
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.okhttp)
             }

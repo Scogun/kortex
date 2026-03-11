@@ -9,11 +9,10 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(libs.koin.compose)
                 implementation(project(":kortex-core"))
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
-                //TODO maybe make it as `api`?
-                implementation(libs.koin.compose)
             }
             kotlin.srcDir("src/main/kotlin")
         }
