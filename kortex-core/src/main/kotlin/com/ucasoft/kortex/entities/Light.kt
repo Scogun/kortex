@@ -90,7 +90,6 @@ data class RgbwwColor(val red: Int, val green: Int, val blue: Int, val coldWhite
 data class XyColor(val x: Float, val y: Float)
 
 object ColorSerializers {
-    // Шаблон для десериализации массива в объект
     abstract class ArraySerializer<T, V>(elementSerializer: KSerializer<V>) : KSerializer<T> {
         protected val delegate = ListSerializer(elementSerializer)
         override val descriptor = delegate.descriptor
