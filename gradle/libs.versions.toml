@@ -7,7 +7,7 @@ compose = "1.10.2"
 material3 = "1.9.0"
 material-icons = "1.7.3"
 coil = "3.4.0"
-kotest = "6.1.5"
+kotest = "6.1.6"
 maven-publish = "0.36.0"
 
 [plugins]
