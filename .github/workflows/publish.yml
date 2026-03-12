@@ -1,0 +1,43 @@
+name: Publish to Maven
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+
+  build-and-publish:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+        shell: bash
+
+      - name: Decode GPG Key
+        env:
+          RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
+        run: |
+          echo "$RING_FILE" > ~/.gradle/secring.gpg.b64
+          base64 --decode -i ~/.gradle/secring.gpg.b64 -o ~/.gradle/secring.gpg
+        shell: bash
+
+      - name: Publish
+        run: ./gradlew publishToMavenCentral -Psigning.keyId=$KEY_ID -Psigning.password=$PASSWORD -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
+        env:
+          KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_TOKEN_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
