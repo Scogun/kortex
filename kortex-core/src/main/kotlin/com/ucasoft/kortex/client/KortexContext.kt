@@ -12,20 +12,23 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonElement
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(ExperimentalAtomicApi::class)
 class KortexContext(private val session: DefaultClientWebSocketSession, internal val scope: CoroutineScope) {
 
-    private val id = AtomicInteger()
 
+    private val id = AtomicInt(0)
+    
     private val nextId
-        get() = id.incrementAndGet()
+        get() = id.incrementAndFetch()
 
-    private val requestIds = ConcurrentHashMap<Int, RequestType>()
-    private val pendingRequests = ConcurrentHashMap<Int, CompletableDeferred<ContextResponse>>()
+    private val requestIds = mutableMapOf<Int, RequestType>()
+    private val pendingRequests = mutableMapOf<Int, CompletableDeferred<ContextResponse>>()
 
     suspend fun callService(domain: String, service: String, data: Map<String, JsonElement> = emptyMap()): Int {
         val id = request(
