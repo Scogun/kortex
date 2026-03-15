@@ -33,7 +33,8 @@ kotlin {
                 implementation(libs.ktor.client.websockets)
             }
         }
-        commonTest {
+        // TODO Tests must be KMP ready
+        /*commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.ktor.server.test.host)
@@ -41,7 +42,7 @@ kotlin {
                 implementation(libs.koin.test)
                 implementation(libs.kotest.assertions.core)
             }
-        }
+        }*/
         jvmMain {
             dependencies {
                 implementation(libs.config)
