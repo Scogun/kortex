@@ -3,8 +3,8 @@ package com.ucasoft.kortex.config
 import com.typesafe.config.ConfigFactory
 import com.ucasoft.kortex.client.ClientConfig
 
-object ConfigLoader {
-    private val root = ConfigFactory.load().withFallback(
+internal actual fun loadConfig(): ClientConfig {
+    val root = ConfigFactory.load().withFallback(
         ConfigFactory.parseMap(
             mapOf(
                 "kortex" to mapOf(
@@ -15,10 +15,9 @@ object ConfigLoader {
         )
     ).getConfig("kortex")
 
-    fun load() =
-        ClientConfig(
-            root.getString("hostname"),
-            root.getInt("port"),
-            root.getString("token")
-        )
+    return ClientConfig(
+        hostname = root.getString("hostname"),
+        port = root.getInt("port"),
+        token = root.getString("token")
+    )
 }

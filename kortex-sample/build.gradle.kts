@@ -18,8 +18,6 @@ kotlin {
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.okhttp)
             }
-            kotlin.srcDir("src/main/kotlin")
-            resources.srcDir("src/main/resources")
         }
         jvmMain {
             dependencies {

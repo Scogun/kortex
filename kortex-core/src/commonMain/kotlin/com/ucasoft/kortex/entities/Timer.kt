@@ -63,10 +63,10 @@ object DurationSerializer : KSerializer<Duration> {
 
     override fun serialize(encoder: Encoder, value: Duration) {
         val whole = value.inWholeSeconds
-        val hours = whole / 3600
-        val minutes = (whole % 3600) / 60
-        val seconds = whole % 60
-        encoder.encodeString("%02d:%02d:%02d".format(hours, minutes, seconds))
+        val hours = (whole / 3600).toString().padStart(2, '0')
+        val minutes = ((whole % 3600) / 60).toString().padStart(2, '0')
+        val seconds = (whole % 60).toString().padStart(2, '0')
+        encoder.encodeString("$hours:$minutes:$seconds")
     }
 
     override fun deserialize(decoder: Decoder): Duration {
