@@ -10,7 +10,7 @@ It provides typed entities, reactive state streams, and Compose integration for 
 
 ---
 * [Features](#features)
-* [Supported Targets](#supported-targets)
+* [Project Status](#project-status)
 * [Modules](#modules)
 * [Quick Start](#quick-start)
   * [Requirements](#requirements)
@@ -24,37 +24,44 @@ It provides typed entities, reactive state streams, and Compose integration for 
 ---
 
 ## Features
-* Typed entity model for Home Assistant domains (`light`, `sensor`, `switch`, `media_player`, and more)
+* Typed entity model for Home Assistant domains (`light`, `sensor`, `switch`, `media_player`, `calendar`, and more)
 * Reactive updates over WebSocket events (`state_changed`)
 * Kotlin Flow-based observation APIs
-* Kotlin Multiplatform structure
-* Compose integration module for JVM desktop UI
+* Kotlin Multiplatform modules
+* Compose Multiplatform integration module
 * Sample app with:
   * desktop Compose UI
   * terminal table with live status updates
 
-## Supported Targets
-* Multiplatform-ready architecture in `kortex-core` and `kortex-compose`
+## Project Status
+* Current version: `0.0.1`
+* Multi-module Gradle project:
+  * `:kortex-core`
+  * `:kortex-compose`
+  * `:kortex-sample`
 
 ## Modules
 * `kortex-core`
-  * HA client, entities, configuration loading, observable startup APIs
+  * Home Assistant client, entities, configuration loading, and observable startup APIs
+  * Targets: `jvm`, `linuxX64`, `linuxArm64`, `mingwX64`, `macosX64`, `macosArm64`, `iosX64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
 * `kortex-compose`
   * Compose integration utilities/components over `kortex-core`
+  * Targets: `jvm`, `macosX64`, `macosArm64`, `iosX64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
 * `kortex-sample`
-  * runnable examples (desktop + terminal)
+  * Runnable JVM sample apps (desktop Compose + terminal)
 
 ## Quick Start
 ### Requirements
-* JDK 17+ (JDK 21 recommended)
+* JDK 17+
 * Gradle Wrapper (`gradlew`, `gradlew.bat`)
 * Home Assistant host + long-lived access token
 
 ### Configuration
 Kortex loads config from `application.conf` under `kortex.*` with environment variable support.
+At runtime, values can be provided either through environment variables or directly in the config file.
 
 Set the recommended variables:
-* `HA_HOST` (example: `192.168.1.100`)
+* `HA_HOST` (example: `homeassistant.local` or `192.168.1.100`)
 * `HA_PORT` (example: `8123`)
 * `HA_TOKEN` (long-lived access token)
 
@@ -68,7 +75,7 @@ $env:HA_TOKEN = "your-token"
 ### Run
 From the repository root:
 ```powershell
-cd %Source_Folder%\kortex
+Set-Location %Source_Folder%\kortex
 ```
 
 Run the desktop Compose sample (`com.ucasoft.kortex.sample.compose.MainKt`):
@@ -82,6 +89,11 @@ Run terminal status table sample (`com.ucasoft.kortex.sample.MainKt`):
 ```
 
 Use `--console=plain` to prevent Gradle progress UI from injecting lines into live table output.
+
+Optional Compose hot reload run task:
+```powershell
+.\gradlew :kortex-sample:hotRunJvm --mainClass=com.ucasoft.kortex.sample.compose.MainKt
+```
 
 ## Usage
 ### Observable Startup
@@ -106,7 +118,7 @@ For the best behavior, run in a real terminal (PowerShell or Windows Terminal), 
 
 ### Compose Startup
 ```kotlin
-import com.ucasoft.kortex.startKortexCompose
+import com.ucasoft.kortex.compose.KortexApplication
 
 fun main() = application {
   Window(
