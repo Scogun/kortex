@@ -48,15 +48,18 @@ class Entities(
 
     val zones by lazy { mapEntities(::Zone) }
 
-    private inline fun <reified T> mapEntities(noinline factory: (StateFlow<State>, KortexContext) -> T, domain: String = T::class.simpleName!!.lowercase()) =
+    private inline fun <reified T> mapEntities(
+        noinline factory: (StateFlow<State>, KortexContext) -> T,
+        domain: String = T::class.simpleName!!.lowercase()
+    ) =
         entityIds.asSequence()
             .filter { it.substringBefore('.') == domain }
             .map { id ->
                 val state = states.mapNotNull { it[id] }.stateIn(
                     context.scope,
                     SharingStarted.Eagerly,
-                    states.value[id]!!
+                    states.value[id] ?: return@map null
                 )
                 factory(state, context)
-            }.toList()
+            }.filterNotNull().toList()
 }
