@@ -2,9 +2,8 @@ package com.ucasoft.kortex.sample.compose
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
-import androidx.compose.material.Text
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -15,7 +14,6 @@ import com.ucasoft.kortex.entities.CalendarEvent
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun Calendars(calendars: List<Calendar>) {
 
@@ -24,7 +22,6 @@ internal fun Calendars(calendars: List<Calendar>) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun CalendarEvents(calendar: Calendar?, modifier: Modifier = Modifier) {
 
@@ -44,15 +41,16 @@ private fun CalendarEvents(calendar: Calendar?, modifier: Modifier = Modifier) {
     ) {
         items(events) {
             ListItem(
-                overlineText = {
+                overlineContent = {
                     Text("${it.start} - ${it.end}")
                 },
-                secondaryText = {
+                headlineContent = {
+                    Text(it.summary)
+                },
+                supportingContent = {
                     Text(it.location ?: "")
                 }
-            ) {
-                Text(it.summary)
-            }
+            )
         }
     }
 }

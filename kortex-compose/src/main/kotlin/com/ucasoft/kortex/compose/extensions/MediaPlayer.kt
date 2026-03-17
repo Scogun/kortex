@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.ucasoft.kortex.entities.MediaPlayer
+import com.ucasoft.kortex.entities.MediaPlayerAttributes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.time.Clock
@@ -46,12 +47,12 @@ fun MediaPlayer.mediaPositionAsState(): State<Float> {
     return mediaPositionState
 }
 
-fun MediaPlayer.getTrackFullName(delimiter: String = " - ") : String {
-    val builder = StringBuilder(attributes.mediaArtist ?: "")
-    if (!attributes.mediaArtist.isNullOrBlank() && !attributes.mediaTitle.isNullOrBlank()) {
+fun MediaPlayerAttributes.getTrackFullName(delimiter: String = " - ") : String {
+    val builder = StringBuilder(mediaArtist ?: "")
+    if (!mediaArtist.isNullOrBlank() && !mediaTitle.isNullOrBlank()) {
         builder.append(delimiter)
     }
-    builder.append(attributes.mediaTitle ?: "")
+    builder.append(mediaTitle ?: "")
     return builder.toString()
 }
 

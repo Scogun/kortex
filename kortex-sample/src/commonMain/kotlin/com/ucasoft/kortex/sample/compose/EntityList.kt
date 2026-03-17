@@ -9,10 +9,9 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
-import androidx.compose.material.Text
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +22,6 @@ import com.ucasoft.kortex.entities.StateAttributes
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun <T: Entity<A>, A: StateAttributes> EntityList(
     entities: List<T>,
@@ -49,12 +47,13 @@ internal fun <T: Entity<A>, A: StateAttributes> EntityList(
                         else
                             Color.Transparent
                     ),
-                    trailing = {
+                    headlineContent = {
+                        Text(it.attributes.friendlyName)
+                    },
+                    trailingContent = {
                         trailingContent(it)
                     }
-                ) {
-                    Text(it.attributes.friendlyName)
-                }
+                )
             }
         }
         selectedEntity?.let {
@@ -79,22 +78,19 @@ internal fun EntityInfo(entity: Entity<*>, modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun EntityState(state: String, modifier: Modifier = Modifier) {
     ListItem(
         modifier = modifier,
-        overlineText = {
+        overlineContent = {
             Text("state")
+        },
+        headlineContent = {
+            Text(state)
         }
-    ) {
-        Text(
-            text = state
-        )
-    }
+    )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun EntityAttributes(attributes: StateAttributes, modifier: Modifier = Modifier) {
     LazyColumn(
@@ -102,12 +98,13 @@ internal fun EntityAttributes(attributes: StateAttributes, modifier: Modifier = 
     ) {
         items(attributes.toMap().toList()) {
             ListItem(
-                overlineText = {
+                overlineContent = {
                     Text(it.first)
+                },
+                headlineContent = {
+                    Text(it.second ?: "")
                 }
-            ) {
-                Text(it.second ?: "")
-            }
+            )
         }
     }
 }

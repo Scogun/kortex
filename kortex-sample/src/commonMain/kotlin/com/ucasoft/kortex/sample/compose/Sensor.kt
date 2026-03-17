@@ -2,7 +2,6 @@ package com.ucasoft.kortex.sample.compose
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,7 +17,6 @@ internal fun Sensors(sensors: List<Sensor>) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun RowScope.Sensor(sensor: Sensor) {
     val state by sensor.collectAsState()
