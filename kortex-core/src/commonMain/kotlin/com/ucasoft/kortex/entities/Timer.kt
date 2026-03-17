@@ -14,7 +14,6 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonUnquotedLiteral
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -30,14 +29,12 @@ class Timer(stateFlow: StateFlow<State>, context: KortexContext) : Entity<TimerA
         get() = state == "paused"
 
     @OptIn(ExperimentalSerializationApi::class)
-    suspend fun start(duration: Duration? = null) = context.callService(
-        domain, "start",
-        mutableMapOf("entity_id" to JsonPrimitive(entityId)).apply {
-            duration?.let { put("duration", JsonUnquotedLiteral(json.encodeToString(DurationSerializer, it))) }
-        }
-    )
+    suspend fun start(duration: Duration? = null) = callService(
+        "start",
+        duration?.let { mapOf("duration" to JsonUnquotedLiteral(json.encodeToString(DurationSerializer, it))) }
+            ?: emptyMap())
 
-    suspend fun pause() = context.callService(domain, "pause", mapOf("entity_id" to JsonPrimitive(entityId)))
+    suspend fun pause() = callService("pause")
 
     fun onStateChange(
         block: suspend Timer.() -> Unit
