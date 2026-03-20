@@ -11,16 +11,15 @@ import com.ucasoft.kortex.entities.Entities
 import com.ucasoft.kortex.entities.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import org.koin.compose.KoinMultiplatformApplication
+import org.koin.compose.KoinApplication
 import org.koin.compose.LocalKoinApplication
-import org.koin.core.annotation.KoinExperimentalAPI
-import org.koin.core.annotation.KoinInternalApi
+import org.koin.compose.getKoin
 import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 
 val LocalKortexApplication = staticCompositionLocalOf<KortexApplicationState> {
-    error("Kortex Application state not found. Please wrap your application in KortexMultiplatformApplication.")
+    error("Kortex Application state not found. Please wrap your application in KortexApplication.")
 }
 
 @Composable
@@ -33,14 +32,13 @@ fun KortexApplication(token: String, host: String = "homeassistant.local", port:
     )
 }
 
-@OptIn(KoinExperimentalAPI::class, KoinInternalApi::class)
 @Composable
 fun KortexApplication(
     modules: List<Module> = emptyList(),
     content: @Composable () -> Unit
 ) {
-    KoinMultiplatformApplication(
-        config = koinConfiguration {
+    KoinApplication(
+        configuration = koinConfiguration {
             val updatedModules = modules.toMutableList().also {
                 it.addAll(0, listOf(configModule, webSocketClient))
             }
@@ -63,7 +61,7 @@ fun KortexApplication(
 
         var initialStateIds by remember { mutableStateOf<Int?>(null) }
 
-        LaunchedEffect(LocalKoinApplication.current) {
+        LaunchedEffect(getKoin()) {
             try {
                 KortexClient().connect(
                     {
