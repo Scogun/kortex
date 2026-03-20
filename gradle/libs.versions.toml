@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 ktor = "3.4.1"
 config = "1.4.6"
 koin = "4.1.1"
