@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class Vacuum(stateFlow: StateFlow<State>, context: KortexContext): Entity<VacuumAttributes>(stateFlow, context) {
+class Vacuum(stateFlow: StateFlow<State>, context: KortexContext): EntityState<VacuumAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<VacuumAttributes>()
 

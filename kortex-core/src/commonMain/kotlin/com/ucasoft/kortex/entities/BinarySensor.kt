@@ -4,7 +4,7 @@ import com.ucasoft.kortex.client.KortexContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
-class BinarySensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<BinarySensorAttributes>(stateFlow, context) {
+class BinarySensor(stateFlow: StateFlow<State>, context: KortexContext): EntityState<BinarySensorAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<BinarySensorAttributes>()
 

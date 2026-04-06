@@ -17,13 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.ucasoft.kortex.compose.extensions.collectAsState
-import com.ucasoft.kortex.entities.Entity
+import com.ucasoft.kortex.entities.EntityState
 import com.ucasoft.kortex.entities.StateAttributes
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 
 @Composable
-internal fun <T: Entity<A>, A: StateAttributes> EntityList(
+internal fun <T: EntityState<A>, A: StateAttributes> EntityList(
     entities: List<T>,
     trailingContent: @Composable (T) -> Unit = {},
     selectedContent: @Composable RowScope.(T) -> Unit = {
@@ -68,8 +68,8 @@ internal fun <T: Entity<A>, A: StateAttributes> EntityList(
 }
 
 @Composable
-internal fun EntityInfo(entity: Entity<*>, modifier: Modifier = Modifier) {
-    val state by entity.collectAsState()
+internal fun EntityInfo(entityState: EntityState<*>, modifier: Modifier = Modifier) {
+    val state by entityState.collectAsState()
     Column(
         modifier = modifier
     ) {

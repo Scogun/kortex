@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
 
-class Cover(stateFlow: StateFlow<State>, context: KortexContext): Entity<CoverAttributes>(stateFlow, context) {
+class Cover(stateFlow: StateFlow<State>, context: KortexContext): EntityState<CoverAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<CoverAttributes>()
 

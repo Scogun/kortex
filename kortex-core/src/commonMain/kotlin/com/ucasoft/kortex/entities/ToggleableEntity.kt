@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.onEach
 abstract class ToggleableEntity<T : StateAttributes>(
     stateFlow: StateFlow<State>,
     context: KortexContext
-) : Entity<T>(stateFlow, context) {
+) : EntityState<T>(stateFlow, context) {
 
     val isOn
         get() = state != "off"

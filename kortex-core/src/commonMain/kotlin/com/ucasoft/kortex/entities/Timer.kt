@@ -18,7 +18,7 @@ import kotlinx.serialization.json.JsonUnquotedLiteral
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class Timer(stateFlow: StateFlow<State>, context: KortexContext) : Entity<TimerAttributes>(stateFlow, context) {
+class Timer(stateFlow: StateFlow<State>, context: KortexContext) : EntityState<TimerAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<TimerAttributes>()
 

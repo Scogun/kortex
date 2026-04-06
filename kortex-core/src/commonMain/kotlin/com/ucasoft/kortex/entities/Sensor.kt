@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
-class Sensor(stateFlow: StateFlow<State>, context: KortexContext): Entity<SensorAttributes>(stateFlow, context) {
+class Sensor(stateFlow: StateFlow<State>, context: KortexContext): EntityState<SensorAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<SensorAttributes>()
 

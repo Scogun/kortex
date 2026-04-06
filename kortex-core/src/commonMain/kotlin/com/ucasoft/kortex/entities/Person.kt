@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class Person(stateFlow: StateFlow<State>, context: KortexContext): Entity<PersonAttributes>(stateFlow, context) {
+class Person(stateFlow: StateFlow<State>, context: KortexContext): EntityState<PersonAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<PersonAttributes>()
 }

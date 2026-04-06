@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
-class MediaPlayer(stateFlow: StateFlow<State>, context: KortexContext): Entity<MediaPlayerAttributes>(stateFlow, context) {
+class MediaPlayer(stateFlow: StateFlow<State>, context: KortexContext): EntityState<MediaPlayerAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<MediaPlayerAttributes>()
 

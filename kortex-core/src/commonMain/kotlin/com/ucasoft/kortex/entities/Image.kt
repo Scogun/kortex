@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
-class Image(stateFlow: StateFlow<State>, context: KortexContext): Entity<ImageAttributes>(stateFlow, context) {
+class Image(stateFlow: StateFlow<State>, context: KortexContext): EntityState<ImageAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<ImageAttributes>()
 }

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
 
-class Button(stateFlow: StateFlow<State>, context: KortexContext): Entity<ButtonAttributes>(stateFlow, context) {
+class Button(stateFlow: StateFlow<State>, context: KortexContext): EntityState<ButtonAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<ButtonAttributes>()
 

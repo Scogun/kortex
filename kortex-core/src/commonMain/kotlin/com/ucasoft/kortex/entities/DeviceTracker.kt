@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class DeviceTracker(stateFlow: StateFlow<State>, context: KortexContext): Entity<DeviceTrackerAttributes>(stateFlow, context) {
+class DeviceTracker(stateFlow: StateFlow<State>, context: KortexContext): EntityState<DeviceTrackerAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<DeviceTrackerAttributes>()
 }

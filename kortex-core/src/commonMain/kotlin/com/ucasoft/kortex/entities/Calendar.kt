@@ -18,7 +18,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
-class Calendar(stateFlow: StateFlow<State>, context: KortexContext) : Entity<CalendarAttributes>(stateFlow, context) {
+class Calendar(stateFlow: StateFlow<State>, context: KortexContext) : EntityState<CalendarAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<CalendarAttributes>()
 

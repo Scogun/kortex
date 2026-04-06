@@ -4,7 +4,7 @@ import com.ucasoft.kortex.client.KortexContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
-class Select(stateFlow: StateFlow<State>, context: KortexContext) : Entity<SelectAttributes>(stateFlow, context) {
+class Select(stateFlow: StateFlow<State>, context: KortexContext) : EntityState<SelectAttributes>(stateFlow, context) {
     override val attributesFlow = mapAttributes<SelectAttributes>()
 }
 

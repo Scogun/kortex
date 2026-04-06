@@ -4,7 +4,7 @@ import com.ucasoft.kortex.client.KortexContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
-class Zone(stateFlow: StateFlow<State>, context: KortexContext): Entity<ZoneAttributes>(stateFlow, context) {
+class Zone(stateFlow: StateFlow<State>, context: KortexContext): EntityState<ZoneAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<ZoneAttributes>()
 }

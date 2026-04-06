@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class Number(stateFlow: StateFlow<State>, context: KortexContext): Entity<NumberAttributes>(stateFlow, context) {
+class Number(stateFlow: StateFlow<State>, context: KortexContext): EntityState<NumberAttributes>(stateFlow, context) {
 
     override val attributesFlow = mapAttributes<NumberAttributes>()
 }
