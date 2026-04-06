@@ -12,6 +12,7 @@ enum class RequestType {
 
     CALL_SERVICE,
     DEVICE_LIST,
+    ENTITY_LIST,
     GET_STATES,
     PENDING_REQUEST,
     SUBSCRIBE

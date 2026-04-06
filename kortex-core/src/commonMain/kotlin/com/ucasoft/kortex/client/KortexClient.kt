@@ -1,6 +1,8 @@
 package com.ucasoft.kortex.client
 
 import com.ucasoft.kortex.client.requests.RequestType
+import com.ucasoft.kortex.entities.Device
+import com.ucasoft.kortex.entities.Entity
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
 import com.ucasoft.kortex.json
@@ -56,6 +58,18 @@ class KortexClient : KoinComponent {
                             if (response.success == true && response.id != null) {
                                 val requestType = context.getRequestType(response.id)
                                 when (requestType) {
+                                    RequestType.DEVICE_LIST -> {
+                                        onResult(
+                                            response.id,
+                                            json.decodeFromJsonElement<List<Device>>(response.result!!)
+                                        )
+                                    }
+                                    RequestType.ENTITY_LIST -> {
+                                        onResult(
+                                            response.id,
+                                            json.decodeFromJsonElement<List<Entity>>(response.result!!)
+                                        )
+                                    }
                                     RequestType.GET_STATES -> {
                                         onResult(
                                             response.id,

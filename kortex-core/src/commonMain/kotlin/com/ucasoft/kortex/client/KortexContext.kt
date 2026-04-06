@@ -3,6 +3,8 @@ package com.ucasoft.kortex.client
 import com.ucasoft.kortex.client.requests.AuthRequest
 import com.ucasoft.kortex.client.requests.CallServiceRequest
 import com.ucasoft.kortex.client.requests.EventType
+import com.ucasoft.kortex.client.requests.RegistryRequest
+import com.ucasoft.kortex.client.requests.RegistryType
 import com.ucasoft.kortex.client.requests.Request
 import com.ucasoft.kortex.client.requests.RequestType
 import com.ucasoft.kortex.client.requests.SubscribeEventRequest
@@ -71,6 +73,28 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
                 deferred.cancel()
             }
         }
+    }
+
+    suspend fun getDevices(): Int {
+        val id = request(
+            RegistryRequest(
+                registryId = nextId,
+                registryType = RegistryType.DEVICE
+            )
+        )
+        requestIds[id] = RequestType.DEVICE_LIST
+        return id
+    }
+
+    suspend fun getEntities(): Int {
+        val id = request(
+            RegistryRequest(
+                registryId = nextId,
+                registryType = RegistryType.ENTITY
+            )
+        )
+        requestIds[id] = RequestType.ENTITY_LIST
+        return id
     }
 
     suspend fun getStates(): Int {
