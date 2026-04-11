@@ -29,6 +29,7 @@ private enum class HomeTab(val title: String) {
     DEVICES("Devices"),
     FANS("Fans"),
     IMAGES("Images"),
+    INPUT_BUTTONS("Input Buttons"),
     LIGHTS("Lights"),
     MEDIA_PLAYERS("Media Players"),
     NUMBERS("Numbers"),
@@ -83,6 +84,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
                 HomeTab.DEVICES -> EntityList(state.entities!!.deviceTrackers)
                 HomeTab.FANS -> ToggleableEntityList(state.entities!!.fans)
                 HomeTab.IMAGES -> Images(state.entities!!.images)
+                HomeTab.INPUT_BUTTONS -> PressableList(state.entities!!.inputButtons)
                 HomeTab.LIGHTS -> ToggleableEntityList(state.entities!!.lights)
                 HomeTab.MEDIA_PLAYERS -> MediaPlayers(state.entities!!.mediaPlayers)
                 HomeTab.NUMBERS -> EntityList(state.entities!!.numbers)

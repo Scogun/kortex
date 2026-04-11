@@ -28,6 +28,8 @@ class Entities(
 
     val images by lazy { mapEntities(::Image) }
 
+    val inputButtons by lazy { mapEntities(::InputButton, "input_button") }
+
     val lights by lazy { mapEntities(::Light) }
 
     val mediaPlayers by lazy { mapEntities(::MediaPlayer, "media_player") }
