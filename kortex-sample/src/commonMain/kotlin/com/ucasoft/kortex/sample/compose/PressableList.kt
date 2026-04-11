@@ -6,11 +6,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import com.ucasoft.kortex.entities.Button
+import com.ucasoft.kortex.entities.PressableEntity
+import com.ucasoft.kortex.entities.StateAttributes
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun ButtonList(entities: List<Button>) {
+internal fun<T: PressableEntity<A>, A: StateAttributes> PressableList(entities: List<T>) {
     EntityList(
         entities,
         trailingContent = {
@@ -20,7 +21,7 @@ internal fun ButtonList(entities: List<Button>) {
 }
 
 @Composable
-private fun Press(entity: Button) {
+private fun Press(entity: PressableEntity<*>) {
     val scope = rememberCoroutineScope()
     IconButton(
         onClick = {

@@ -76,7 +76,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
         Box {
             when (selectedTab) {
                 HomeTab.BINARY_SENSORS -> EntityList(state.entities!!.binarySensors)
-                HomeTab.BUTTONS -> ButtonList(state.entities!!.buttons)
+                HomeTab.BUTTONS -> PressableList(state.entities!!.buttons)
                 HomeTab.CALENDARS -> Calendars(state.entities!!.calendars)
                 HomeTab.CLIMATES -> ToggleableEntityList(state.entities!!.climates)
                 HomeTab.COVERS -> EntityList(state.entities!!.covers)
