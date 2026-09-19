@@ -16,6 +16,8 @@ class Entities(
 
     val buttons by lazy { mapEntities(::Button) }
 
+    val cameras by lazy { mapEntities(::Camera) }
+
     val calendars by lazy { mapEntities(::Calendar) }
 
     val climates by lazy { mapEntities(::Climate) }

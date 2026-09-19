@@ -23,6 +23,7 @@ import com.ucasoft.kortex.compose.KortexApplicationState
 private enum class HomeTab(val title: String) {
     BINARY_SENSORS("Binary Sensors"),
     BUTTONS("Buttons"),
+    CAMERAS("Cameras"),
     CALENDARS("Calendars"),
     CLIMATES("Climates"),
     COVERS("Covers"),
@@ -78,6 +79,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
             when (selectedTab) {
                 HomeTab.BINARY_SENSORS -> EntityList(state.entities!!.binarySensors)
                 HomeTab.BUTTONS -> PressableList(state.entities!!.buttons)
+                HomeTab.CAMERAS -> EntityList(state.entities!!.cameras)
                 HomeTab.CALENDARS -> Calendars(state.entities!!.calendars)
                 HomeTab.CLIMATES -> ToggleableEntityList(state.entities!!.climates)
                 HomeTab.COVERS -> EntityList(state.entities!!.covers)
