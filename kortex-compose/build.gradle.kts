@@ -8,13 +8,11 @@ plugins {
 kotlin {
     jvmToolchain(17)
     jvm()
-    macosX64()
     macosArm64()
-    js(IR) {
+    js {
         browser()
         nodejs()
     }
-    iosX64()
     iosArm64()
     iosSimulatorArm64()
     sourceSets {
