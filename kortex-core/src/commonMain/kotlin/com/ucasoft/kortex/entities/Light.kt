@@ -14,22 +14,14 @@ class Light(stateFlow: StateFlow<State>, context: KortexContext): ToggleableEnti
 
     override val attributesFlow = mapAttributes<LightAttributes>()
 
-    val isBrightnessSupported = (attributes.supportedFeatures and SUPPORT_BRIGHTNESS) != 0
-    val isColorTempSupported = (attributes.supportedFeatures and SUPPORT_COLOR_TEMP) != 0
     val isEffectSupported = (attributes.supportedFeatures and SUPPORT_EFFECT) != 0
     val isFlashSupported = (attributes.supportedFeatures and SUPPORT_FLASH) != 0
-    val isColorSupported = (attributes.supportedFeatures and SUPPORT_COLOR) != 0
     val isTransitionSupported = (attributes.supportedFeatures and SUPPORT_TRANSITION) != 0
-    val isWhiteValueSupported = (attributes.supportedFeatures and SUPPORT_WHITE_VALUE) != 0
 
     private companion object {
-        const val SUPPORT_BRIGHTNESS = 1
-        const val SUPPORT_COLOR_TEMP = 2
         const val SUPPORT_EFFECT = 4
         const val SUPPORT_FLASH = 8
-        const val SUPPORT_COLOR = 16
         const val SUPPORT_TRANSITION = 32
-        const val SUPPORT_WHITE_VALUE = 64
     }
 }
 
@@ -56,7 +48,7 @@ open class LightAttributes(
     @SerialName("rgbww_color")
     val rgbwwColor: RgbwwColor? = null,
     @SerialName("supported_color_modes")
-    val supportedColorModes: List<String>,
+    val supportedColorModes: List<ColorMode>,
     @SerialName("xy_color")
     val xyColor: XyColor? = null
 ): FeaturedAttributes()
