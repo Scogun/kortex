@@ -3,7 +3,6 @@ package com.ucasoft.kortex
 import com.ucasoft.kortex.client.KortexClient
 import com.ucasoft.kortex.client.KortexContext
 import com.ucasoft.kortex.client.requests.EventType
-import com.ucasoft.kortex.config.ConfigLoader
 import com.ucasoft.kortex.di.configModule
 import com.ucasoft.kortex.di.webSocketClient
 import com.ucasoft.kortex.entities.Entities
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.context.startKoin
-import org.koin.dsl.module
 
 suspend fun startKortex(
     onAuthenticated: suspend (context: KortexContext) -> Unit,
@@ -33,8 +31,12 @@ suspend fun startKortexObservable(
 
     val states = MutableStateFlow<Map<String, State>>(emptyMap())
 
-    fun update(state: State) {
-        states.update { it + (state.entityId to state) }
+    fun update(entityId: String, state: State?) {
+        if (state == null) {
+            states.update { it - entityId }
+        } else {
+            states.update { it + (entityId to state) }
+        }
     }
 
     var initialStateIds: Int? = null
@@ -50,7 +52,7 @@ suspend fun startKortexObservable(
             when (id) {
                 initialStateIds -> {
                     val initialStates = result as List<State>
-                    initialStates.forEach { update(it) }
+                    initialStates.forEach { update(it.entityId, it) }
                     context!!.scope.launch {
                         onStarted(Entities(context, states))
                     }
@@ -59,7 +61,7 @@ suspend fun startKortexObservable(
         }
     ) {
         if (it.type == EventType.STATE_CHANGED.toString().lowercase()) {
-            update(it.data.newState)
+            update(it.data.entityId, it.data.newState)
         }
     }
 }

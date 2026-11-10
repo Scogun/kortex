@@ -18,7 +18,7 @@ data class EventData(
     @SerialName("entity_id")
     val entityId: String,
     @SerialName("old_state")
-    val oldState: State,
+    val oldState: State?,
     @SerialName("new_state")
-    val newState: State
+    val newState: State?
 )

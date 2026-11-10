@@ -47,8 +47,12 @@ fun KortexApplication(
     ) {
         val states = remember { MutableStateFlow<Map<String, State>>(emptyMap()) }
 
-        fun update(state: State) {
-            states.update { it + (state.entityId to state) }
+        fun update(entityId: String, state: State?) {
+            if (state == null) {
+                states.update { it - entityId }
+            } else {
+                states.update { it + (entityId to state) }
+            }
         }
 
         var applicationState by remember { mutableStateOf(KortexApplicationState()) }
@@ -77,7 +81,7 @@ fun KortexApplication(
                         when (id) {
                             initialStateIds -> {
                                 val initialStates = result as List<State>
-                                initialStates.forEach { update(it) }
+                                initialStates.forEach { update(it.entityId, it) }
                                 applicationState = applicationState.copy(
                                     isLoading = false,
                                     entities = Entities(applicationState.context!!, states),
@@ -89,7 +93,7 @@ fun KortexApplication(
                     },
                     {
                         if (it.type == EventType.STATE_CHANGED.toString().lowercase()) {
-                            update(it.data.newState)
+                            update(it.data.entityId, it.data.newState)
                         }
                     }
                 )
