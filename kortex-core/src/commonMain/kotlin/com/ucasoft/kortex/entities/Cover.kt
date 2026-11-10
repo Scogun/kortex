@@ -23,14 +23,14 @@ class Cover(stateFlow: StateFlow<State>, context: KortexContext): EntityState<Co
         if (!isOpenSupported) {
             throw UnsupportedOperationException("Cover does not support open")
         }
-        callService("open")
+        callService("open_cover")
     }
 
     suspend fun close() {
         if (!isCloseSupported) {
             throw UnsupportedOperationException("Cover does not support close")
         }
-        callService("close")
+        callService("close_cover")
     }
 
     suspend fun setPosition(position: Int) {
@@ -42,14 +42,14 @@ class Cover(stateFlow: StateFlow<State>, context: KortexContext): EntityState<Co
             "Position must be between 0 and 100"
         }
 
-        callService("set_position", "position" to JsonPrimitive(position))
+        callService("set_cover_position", "position" to JsonPrimitive(position))
     }
 
     suspend fun stop() {
         if (!isStopSupported) {
             throw UnsupportedOperationException("Cover does not support stop")
         }
-        callService("stop")
+        callService("stop_cover")
     }
 
     private companion object {

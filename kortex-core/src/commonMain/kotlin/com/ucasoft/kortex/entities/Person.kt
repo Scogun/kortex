@@ -18,7 +18,7 @@ data class PersonAttributes(
     val editable: Boolean,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val source: String,
+    val source: String? = null,
     @SerialName("user_id")
     val userId: String? = null,
 ): StateAttributes()
