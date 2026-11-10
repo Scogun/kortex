@@ -9,7 +9,8 @@ internal actual fun loadConfig(): ClientConfig {
             mapOf(
                 "kortex" to mapOf(
                     "hostname" to "homeassistant.local",
-                    "port" to 8123
+                    "port" to 8123,
+                    "secure" to false
                 )
             )
         )
@@ -18,6 +19,7 @@ internal actual fun loadConfig(): ClientConfig {
     return ClientConfig(
         hostname = root.getString("hostname"),
         port = root.getInt("port"),
-        token = root.getString("token")
+        token = root.getString("token"),
+        secure = root.getBoolean("secure")
     )
 }

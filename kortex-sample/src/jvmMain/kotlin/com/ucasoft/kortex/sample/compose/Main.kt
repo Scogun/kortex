@@ -49,7 +49,7 @@ fun main() = application {
                 }
             }
         ) {
-            KortexApplication(token, host) {
+            KortexApplication(token, host, config.port, config.secure) {
 
                 val state = LocalKortexApplication.current
 

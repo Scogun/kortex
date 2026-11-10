@@ -64,6 +64,7 @@ Set the recommended variables:
 * `HA_HOST` (example: `homeassistant.local` or `192.168.1.100`)
 * `HA_PORT` (example: `8123`)
 * `HA_TOKEN` (long-lived access token)
+* `HA_SECURE` (optional: `true` to connect over TLS (`wss`), default `false`)
 
 PowerShell:
 ```powershell

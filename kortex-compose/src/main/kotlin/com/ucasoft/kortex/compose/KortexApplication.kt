@@ -23,10 +23,10 @@ val LocalKortexApplication = staticCompositionLocalOf<KortexApplicationState> {
 }
 
 @Composable
-fun KortexApplication(token: String, host: String = "homeassistant.local", port: Int = 8123, content: @Composable () -> Unit) {
+fun KortexApplication(token: String, host: String = "homeassistant.local", port: Int = 8123, secure: Boolean = false, content: @Composable () -> Unit) {
     KortexApplication(
         modules = listOf(module {
-            single { ClientConfig(host, port, token) }
+            single { ClientConfig(host, port, token, secure) }
         }),
         content
     )

@@ -8,6 +8,7 @@ import com.ucasoft.kortex.entities.State
 import com.ucasoft.kortex.json
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +28,16 @@ class KortexClient : KoinComponent {
         onResult: suspend (requestId: Int, result: Any) -> Unit = { _, _ -> },
         onEvent: suspend (event: Event) -> Unit
     ) {
-        cio.webSocket("ws://${config.hostname}:${config.port}/api/websocket") {
+        cio.webSocket(
+            request = {
+                url {
+                    protocol = if (config.secure) URLProtocol.WSS else URLProtocol.WS
+                    host = config.hostname
+                    port = config.port
+                    path("api/websocket")
+                }
+            }
+        ) {
 
             val scope = CoroutineScope(coroutineContext + SupervisorJob())
 

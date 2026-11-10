@@ -12,8 +12,9 @@ internal fun buildClientConfig(
     val port = (properties["kortex.port"] ?: "8123").toInt()
     val token = properties["kortex.token"]
         ?: error("kortex.token is required in application.conf")
+    val secure = properties["kortex.secure"]?.toBooleanStrict() ?: false
 
-    return ClientConfig(hostname = hostname, port = port, token = token)
+    return ClientConfig(hostname = hostname, port = port, token = token, secure = secure)
 }
 
 private fun String.parseHocon(getEnv: (String) -> String?): Map<String, String> {

@@ -26,7 +26,7 @@ private fun RowScope.Image(image: Image) {
     if (state.attributes.entityPicture != null) {
         AsyncImage(
             modifier = Modifier.weight(1f),
-            model = "http://${clientConfig.hostname}:${clientConfig.port}${state.attributes.entityPicture}",
+            model = "${if (clientConfig.secure) "https" else "http"}://${clientConfig.hostname}:${clientConfig.port}${state.attributes.entityPicture}",
             contentDescription = state.attributes.friendlyName
         )
     }
