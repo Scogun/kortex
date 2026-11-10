@@ -5,7 +5,9 @@ import com.ucasoft.kortex.di.webSocketClient
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
 import io.kotest.assertions.throwables.shouldThrowWithMessage
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -101,7 +103,7 @@ class KortexClientTest : KoinTest {
         withContext(Dispatchers.Default.limitedParallelism(1)) {
             withTimeout(2.seconds) {
                 val context = authDeferred.await()
-                context shouldNotBeNull {}
+                context.shouldNotBeNull()
             }
         }
     }
@@ -170,8 +172,8 @@ class KortexClientTest : KoinTest {
         withContext(Dispatchers.Default.limitedParallelism(1)) {
             withTimeout(2.seconds) {
                 val event = eventDeferred.await()
-                event.type shouldBe "test_event"
-                event.data.newState.state shouldBe "on"
+                event.type.shouldBe("test_event")
+                event.data.newState.shouldNotBeNull().state.shouldBe("on")
             }
         }
     }
@@ -194,7 +196,7 @@ class KortexClientTest : KoinTest {
             onEvent = { eventCalled.complete(true) }
         )
 
-        eventCalled.isCompleted shouldBe false
+        eventCalled.isCompleted.shouldBeFalse()
     }
 
     @Test
@@ -215,7 +217,7 @@ class KortexClientTest : KoinTest {
             onEvent = { eventCalled.complete(true) }
         )
 
-        eventCalled.isCompleted shouldBe false
+        eventCalled.isCompleted.shouldBeFalse()
     }
 
     @Test
@@ -259,11 +261,11 @@ class KortexClientTest : KoinTest {
         withContext(Dispatchers.Default.limitedParallelism(1)) {
             withTimeout(2.seconds) {
                 val (requestId, result) = resultDeferred.await()
-                requestId shouldBe 1
-                val states = result.shouldBeInstanceOf<List<State>>()
-                states shouldHaveSize 1
-                states.first().entityId shouldBe "light.test"
-                states.first().state shouldBe "on"
+                requestId.shouldBe(1)
+                result.shouldBeInstanceOf<List<State>>().shouldBeSingleton {
+                    it.entityId.shouldBe("light.test")
+                    it.state.shouldBe("on")
+                }
             }
         }
     }
@@ -350,7 +352,7 @@ class KortexClientTest : KoinTest {
             onEvent = {}
         )
 
-        resultCalled.isCompleted shouldBe false
+        resultCalled.isCompleted.shouldBeFalse()
     }
 
     @Test
@@ -373,7 +375,7 @@ class KortexClientTest : KoinTest {
             onEvent = {}
         )
 
-        resultCalled.isCompleted shouldBe false
+        resultCalled.isCompleted.shouldBeFalse()
     }
 
     @Test
@@ -395,7 +397,7 @@ class KortexClientTest : KoinTest {
             onEvent = { eventCalled.complete(true) }
         )
 
-        authDeferred.await() shouldBe true
-        eventCalled.isCompleted shouldBe false
+        authDeferred.await().shouldBeTrue()
+        eventCalled.isCompleted.shouldBeFalse()
     }
 }
