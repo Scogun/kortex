@@ -74,11 +74,11 @@ object InstantSerializer : KSerializer<Instant> {
         val input = decoder.decodeString()
         val isoInput = when {
             input.length == 10 -> "${input}T00:00:00Z"
-            input.contains(" ") -> input.replace(" ", "T") + "Z"
-            input.contains("T") -> if (input.endsWith("Z")) input else "${input}Z"
+            input.contains(" ") -> input.replace(" ", "T")
             else -> input
         }
-        return Instant.parse(isoInput)
+        val timeZoneInput = if (isoInput.matches(Regex(".*(?:[+-]\\d{2}:\\d{2}|Z)$"))) isoInput else "${isoInput}Z"
+        return Instant.parse(timeZoneInput)
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
