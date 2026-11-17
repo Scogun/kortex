@@ -36,6 +36,17 @@ class Climate(stateFlow: StateFlow<State>, context: KortexContext) : ToggleableE
 open class ClimateAttributes(
     @SerialName("hvac_modes")
     val hvacModes: List<HVACMode>,
+    @SerialName("min_temp")
+    val minimumTemperature: Double,
+    @SerialName("max_temp")
+    val maximumTemperature: Double,
+    @SerialName("target_temp_step")
+    val targetTemperatureStep: Double? = null,
+    @SerialName("current_temperature")
+    val currentTemperature: Double,
+    val temperature: Double,
+    @SerialName("hvac_action")
+    val hvacAction: HVACAction? = null,
 ) : FeaturedAttributes()
 
 enum class HVACMode {
@@ -46,4 +57,15 @@ enum class HVACMode {
     AUTO,
     DRY,
     FAN_ONLY
+}
+
+enum class HVACAction {
+    OFF,
+    IDLE,
+    HEATING,
+    PREHEATING,
+    COOLING,
+    DRYING,
+    FAN,
+    DEFROSTING
 }
