@@ -32,6 +32,8 @@ class Entities(
 
     val inputButtons by lazy { mapEntities(::InputButton, "input_button") }
 
+    val inputDateTimes by lazy { mapEntities(::InputDateTime, "input_datetime") }
+
     val lights by lazy { mapEntities(::Light) }
 
     val mediaPlayers by lazy { mapEntities(::MediaPlayer, "media_player") }
