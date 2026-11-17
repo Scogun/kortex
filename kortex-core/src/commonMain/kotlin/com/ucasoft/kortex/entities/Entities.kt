@@ -36,6 +36,8 @@ class Entities(
 
     val lights by lazy { mapEntities(::Light) }
 
+    val locks by lazy { mapEntities(::Lock) }
+
     val mediaPlayers by lazy { mapEntities(::MediaPlayer, "media_player") }
 
     val numbers by lazy { mapEntities(::Number) }

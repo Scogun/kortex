@@ -33,6 +33,7 @@ private enum class HomeTab(val title: String) {
     INPUT_BUTTONS("Input Buttons"),
     INPUT_DATETIMES("Input DateTimes"),
     LIGHTS("Lights"),
+    LOCKS("Locks"),
     MEDIA_PLAYERS("Media Players"),
     NUMBERS("Numbers"),
     PERSONS("Persons"),
@@ -90,6 +91,7 @@ internal fun HomeAssistant(state: KortexApplicationState) {
                 HomeTab.INPUT_BUTTONS -> PressableList(state.entities!!.inputButtons)
                 HomeTab.INPUT_DATETIMES -> DateTimeList(state.entities!!.inputDateTimes)
                 HomeTab.LIGHTS -> ToggleableEntityList(state.entities!!.lights)
+                HomeTab.LOCKS -> EntityList(state.entities!!.locks)
                 HomeTab.MEDIA_PLAYERS -> MediaPlayers(state.entities!!.mediaPlayers)
                 HomeTab.NUMBERS -> EntityList(state.entities!!.numbers)
                 HomeTab.PERSONS -> EntityList(state.entities!!.persons)
