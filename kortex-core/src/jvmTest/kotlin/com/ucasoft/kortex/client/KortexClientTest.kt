@@ -4,21 +4,34 @@ import com.ucasoft.kortex.client.requests.EventType
 import com.ucasoft.kortex.di.webSocketClient
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.getOrFail
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,6 +40,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import java.net.ServerSocket
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -37,6 +51,10 @@ class KortexClientTest : KoinTest {
     private lateinit var server: EmbeddedServer<*, *>
 
     private var serverHandler: suspend DefaultWebSocketServerSession.() -> Unit = {}
+
+    private val savedAutomationConfigs = ConcurrentHashMap<String, String>()
+
+    private val deletedAutomationConfigs = ConcurrentHashMap.newKeySet<String>()
 
     private suspend fun DefaultWebSocketServerSession.awaitTextFrameMatching(regex: Regex): String {
         while (true) {
@@ -57,6 +75,64 @@ class KortexClientTest : KoinTest {
             routing {
                 webSocket("/api/websocket") {
                     serverHandler()
+                }
+                get("/api/config/automation/config/{id}") {
+                    when {
+                        call.request.headers[HttpHeaders.Authorization] != "Bearer $testToken" ->
+                            call.respond(HttpStatusCode.Unauthorized)
+
+                        call.parameters["id"] == "existing" ->
+                            call.respondText("""{"id": "existing", "alias": "Existing"}""", ContentType.Application.Json)
+
+                        call.parameters["id"] == "broken" ->
+                            call.respond(HttpStatusCode.InternalServerError)
+
+                        else ->
+                            call.respondText(
+                                """{"message": "Resource not found"}""",
+                                ContentType.Application.Json,
+                                HttpStatusCode.NotFound
+                            )
+                    }
+                }
+                post("/api/config/automation/config/{id}") {
+                    when {
+                        call.request.headers[HttpHeaders.Authorization] != "Bearer $testToken" ->
+                            call.respond(HttpStatusCode.Unauthorized)
+
+                        !call.request.contentType().match(ContentType.Application.Json) ->
+                            call.respond(HttpStatusCode.UnsupportedMediaType)
+
+                        call.parameters["id"] == "broken" ->
+                            call.respondText(
+                                """{"message": "Message malformed: broken"}""",
+                                ContentType.Application.Json,
+                                HttpStatusCode.BadRequest
+                            )
+
+                        else -> {
+                            savedAutomationConfigs[call.parameters.getOrFail("id")] = call.receiveText()
+                            call.respondText("""{"result": "ok"}""", ContentType.Application.Json)
+                        }
+                    }
+                }
+                delete("/api/config/automation/config/{id}") {
+                    when {
+                        call.request.headers[HttpHeaders.Authorization] != "Bearer $testToken" ->
+                            call.respond(HttpStatusCode.Unauthorized)
+
+                        call.parameters["id"] == "existing" -> {
+                            deletedAutomationConfigs += "existing"
+                            call.respondText("""{"result": "ok"}""", ContentType.Application.Json)
+                        }
+
+                        else ->
+                            call.respondText(
+                                """{"message": "Resource not found"}""",
+                                ContentType.Application.Json,
+                                HttpStatusCode.BadRequest
+                            )
+                    }
                 }
             }
         }.start(wait = false)
@@ -399,5 +475,137 @@ class KortexClientTest : KoinTest {
 
         authDeferred.await().shouldBeTrue()
         eventCalled.isCompleted.shouldBeFalse()
+    }
+
+    @Test
+    fun `get automation config should return config of existing automation`() = runTest {
+        val configDeferred = CompletableDeferred<JsonObject?>()
+
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            delay(150.milliseconds)
+            close(CloseReason(CloseReason.Codes.NORMAL, "done"))
+        }
+
+        val client = KortexClient()
+        client.connect(
+            onAuthenticated = { context -> configDeferred.complete(context.getAutomationConfig("existing")) },
+            onEvent = {}
+        )
+
+        configDeferred.await().shouldNotBeNull().getValue("alias").jsonPrimitive.content.shouldBe("Existing")
+    }
+
+    @Test
+    fun `get automation config should return null for unknown automation`() = runTest {
+        val configDeferred = CompletableDeferred<JsonObject?>()
+
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            delay(150.milliseconds)
+            close(CloseReason(CloseReason.Codes.NORMAL, "done"))
+        }
+
+        val client = KortexClient()
+        client.connect(
+            onAuthenticated = { context -> configDeferred.complete(context.getAutomationConfig("unknown")) },
+            onEvent = {}
+        )
+
+        configDeferred.await().shouldBeNull()
+    }
+
+    @Test
+    fun `get automation config should fail on unexpected status`() = runTest {
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            awaitCancellation()
+        }
+
+        val client = KortexClient()
+
+        shouldThrow<IllegalStateException> {
+            client.connect(
+                onAuthenticated = { context -> context.getAutomationConfig("broken") },
+                onEvent = {}
+            )
+        }
+    }
+
+    @Test
+    fun `save automation config should post config as json`() = runTest {
+        val config = buildJsonObject { put("alias", "New") }
+
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            delay(150.milliseconds)
+            close(CloseReason(CloseReason.Codes.NORMAL, "done"))
+        }
+
+        val client = KortexClient()
+        client.connect(
+            onAuthenticated = { context -> context.saveAutomationConfig("new", config) },
+            onEvent = {}
+        )
+
+        Json.parseToJsonElement(savedAutomationConfigs["new"].shouldNotBeNull()).shouldBe(config)
+    }
+
+    @Test
+    fun `save automation config should fail with the reason on unexpected status`() = runTest {
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            awaitCancellation()
+        }
+
+        val client = KortexClient()
+
+        shouldThrow<IllegalStateException> {
+            client.connect(
+                onAuthenticated = { context -> context.saveAutomationConfig("broken", buildJsonObject { }) },
+                onEvent = {}
+            )
+        }.message.shouldContain("Message malformed: broken")
+    }
+
+    @Test
+    fun `delete automation config should delete existing automation`() = runTest {
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            delay(150.milliseconds)
+            close(CloseReason(CloseReason.Codes.NORMAL, "done"))
+        }
+
+        val client = KortexClient()
+        client.connect(
+            onAuthenticated = { context -> context.deleteAutomationConfig("existing") },
+            onEvent = {}
+        )
+
+        deletedAutomationConfigs.shouldContainExactly("existing")
+    }
+
+    @Test
+    fun `delete automation config should fail with the reason on unexpected status`() = runTest {
+        serverHandler = {
+            awaitTextFrameMatching(Regex("\"type\"\\s*:\\s*\"auth\""))
+            send(Frame.Text("""{"type": "auth_ok"}"""))
+            awaitCancellation()
+        }
+
+        val client = KortexClient()
+
+        shouldThrow<IllegalStateException> {
+            client.connect(
+                onAuthenticated = { context -> context.deleteAutomationConfig("unknown") },
+                onEvent = {}
+            )
+        }.message.shouldContain("Resource not found")
     }
 }

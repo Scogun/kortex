@@ -8,12 +8,22 @@ import com.ucasoft.kortex.client.requests.RegistryType
 import com.ucasoft.kortex.client.requests.Request
 import com.ucasoft.kortex.client.requests.RequestType
 import com.ucasoft.kortex.client.requests.SubscribeEventRequest
+import com.ucasoft.kortex.json
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
@@ -22,7 +32,6 @@ import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalAtomicApi::class)
 class KortexContext(private val session: DefaultClientWebSocketSession, internal val scope: CoroutineScope) {
-
 
     private val id = AtomicInt(0)
     
@@ -75,6 +84,24 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
         }
     }
 
+    suspend fun deleteAutomationConfig(id: String) {
+        val response = session.call.client.delete("api/config/automation/config/$id")
+
+        if (response.status != HttpStatusCode.OK) {
+            error("Automation config delete for $id failed: ${response.status} ${response.bodyAsText()}")
+        }
+    }
+
+    suspend fun getAutomationConfig(id: String): JsonObject? {
+        val response = session.call.client.get("api/config/automation/config/$id")
+
+        return when (response.status) {
+            HttpStatusCode.OK -> json.decodeFromString<JsonObject>(response.bodyAsText())
+            HttpStatusCode.NotFound -> null
+            else -> error("Automation config request for $id failed: ${response.status}")
+        }
+    }
+
     suspend fun getDevices(): Int {
         val id = request(
             RegistryRequest(
@@ -107,6 +134,17 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
 
         requestIds[id] = RequestType.GET_STATES
         return id
+    }
+
+    suspend fun saveAutomationConfig(id: String, config: JsonObject) {
+        val response = session.call.client.post("api/config/automation/config/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(config.toString())
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            error("Automation config save for $id failed: ${response.status} ${response.bodyAsText()}")
+        }
     }
 
     suspend fun subscribeEvents(eventType: EventType): Int {
