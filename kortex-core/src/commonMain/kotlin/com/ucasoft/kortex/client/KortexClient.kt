@@ -32,8 +32,6 @@ class KortexClient : KoinComponent {
             request = {
                 url {
                     protocol = if (config.secure) URLProtocol.WSS else URLProtocol.WS
-                    host = config.hostname
-                    port = config.port
                     path("api/websocket")
                 }
             }
