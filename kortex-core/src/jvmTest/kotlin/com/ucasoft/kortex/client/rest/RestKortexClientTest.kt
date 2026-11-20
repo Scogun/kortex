@@ -15,6 +15,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.getOrFail
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
@@ -28,12 +29,11 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
-import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap
 
 class RestKortexClientTest : KoinTest {
 
-    private val testPort = ServerSocket(0).use { it.localPort }
+    private var testPort = 0
     private val testToken = "test_token"
     private lateinit var server: EmbeddedServer<*, *>
 
@@ -43,7 +43,7 @@ class RestKortexClientTest : KoinTest {
 
     @BeforeEach
     fun setup() {
-        server = embeddedServer(CIO, port = testPort) {
+        server = embeddedServer(CIO, port = 0) {
             routing {
                 get("/api/config/automation/config/{id}") {
                     when {
@@ -108,6 +108,7 @@ class RestKortexClientTest : KoinTest {
                 }
             }
         }.start(wait = false)
+        testPort = runBlocking { server.engine.resolvedConnectors().first().port }
 
         startKoin {
             modules(module {
