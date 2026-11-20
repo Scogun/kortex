@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import coil3.compose.AsyncImage
-import com.ucasoft.kortex.client.ClientConfig
 import com.ucasoft.kortex.client.rest.RestKortexClient
 import com.ucasoft.kortex.compose.extensions.collectAsState
 import com.ucasoft.kortex.entities.Image

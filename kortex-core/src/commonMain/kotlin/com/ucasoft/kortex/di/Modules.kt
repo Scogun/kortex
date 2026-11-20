@@ -8,7 +8,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.request
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter

@@ -17,9 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.ucasoft.kortex.client.rest.RestKortexClient
 import com.ucasoft.kortex.compose.KortexApplication
 import com.ucasoft.kortex.compose.LocalKortexApplication
 import com.ucasoft.kortex.config.ConfigLoader
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 val config = ConfigLoader.load()
 
@@ -50,6 +53,10 @@ fun main() = application {
             }
         ) {
             KortexApplication(token, host, config.port, config.secure) {
+
+                loadKoinModules(module {
+                    single { RestKortexClient() }
+                })
 
                 val state = LocalKortexApplication.current
 
