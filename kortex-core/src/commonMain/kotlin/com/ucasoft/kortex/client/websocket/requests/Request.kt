@@ -15,5 +15,6 @@ enum class RequestType {
     ENTITY_LIST,
     GET_STATES,
     PENDING_REQUEST,
-    SUBSCRIBE
+    SUBSCRIBE,
+    TRACE
 }

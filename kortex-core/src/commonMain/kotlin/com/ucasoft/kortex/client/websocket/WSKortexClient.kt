@@ -6,6 +6,7 @@ import com.ucasoft.kortex.entities.Device
 import com.ucasoft.kortex.entities.Entity
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
+import com.ucasoft.kortex.entities.Trace
 import com.ucasoft.kortex.json
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
@@ -85,6 +86,13 @@ class WSKortexClient : KoinComponent {
                                         onResult(
                                             response.id,
                                             json.decodeFromJsonElement<List<State>>(response.result!!)
+                                        )
+                                    }
+
+                                    RequestType.TRACE -> {
+                                        onResult(
+                                            response.id,
+                                            json.decodeFromJsonElement<Trace>(response.result!!)
                                         )
                                     }
 

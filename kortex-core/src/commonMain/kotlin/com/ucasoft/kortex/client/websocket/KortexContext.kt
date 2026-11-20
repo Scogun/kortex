@@ -8,22 +8,13 @@ import com.ucasoft.kortex.client.websocket.requests.RegistryType
 import com.ucasoft.kortex.client.websocket.requests.Request
 import com.ucasoft.kortex.client.websocket.requests.RequestType
 import com.ucasoft.kortex.client.websocket.requests.SubscribeEventRequest
-import com.ucasoft.kortex.json
+import com.ucasoft.kortex.client.websocket.requests.TraceRequest
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
@@ -115,6 +106,19 @@ class KortexContext(private val session: DefaultClientWebSocketSession, internal
         )
 
         requestIds[id] = RequestType.GET_STATES
+        return id
+    }
+
+    suspend fun getTrace(itemId: String, runId: String): Int {
+        val id = request(
+            TraceRequest(
+                traceId = nextId,
+                itemId = itemId,
+                runId = runId
+            )
+        )
+
+        requestIds[id] = RequestType.TRACE
         return id
     }
 
