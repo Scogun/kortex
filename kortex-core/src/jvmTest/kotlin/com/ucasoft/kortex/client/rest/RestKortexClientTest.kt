@@ -53,6 +53,9 @@ class RestKortexClientTest : KoinTest {
                         call.parameters["id"] == "existing" ->
                             call.respondText("""{"id": "existing", "alias": "Existing"}""", ContentType.Application.Json)
 
+                        call.parameters["id"] == "with:colon" ->
+                            call.respondText("""{"id": "with:colon", "alias": "Colon"}""", ContentType.Application.Json)
+
                         call.parameters["id"] == "broken" ->
                             call.respond(HttpStatusCode.InternalServerError)
 
@@ -127,20 +130,27 @@ class RestKortexClientTest : KoinTest {
 
     @Test
     fun `get automation config should return config of existing automation`() = runTest {
-        val config = RestKortexClient().getAutomationConfig("existing")
+        val config = RestKortexClient().automations.getConfig("existing")
 
         config.shouldNotBeNull().getValue("alias").jsonPrimitive.content.shouldBe("Existing")
     }
 
     @Test
+    fun `get automation config should send an id with a colon as a path segment`() = runTest {
+        val config = RestKortexClient().automations.getConfig("with:colon")
+
+        config.shouldNotBeNull().getValue("alias").jsonPrimitive.content.shouldBe("Colon")
+    }
+
+    @Test
     fun `get automation config should return null for unknown automation`() = runTest {
-        RestKortexClient().getAutomationConfig("unknown").shouldBeNull()
+        RestKortexClient().automations.getConfig("unknown").shouldBeNull()
     }
 
     @Test
     fun `get automation config should fail on unexpected status`() = runTest {
         shouldThrow<IllegalStateException> {
-            RestKortexClient().getAutomationConfig("broken")
+            RestKortexClient().automations.getConfig("broken")
         }
     }
 
@@ -148,7 +158,7 @@ class RestKortexClientTest : KoinTest {
     fun `save automation config should post config as json`() = runTest {
         val config = buildJsonObject { put("alias", "New") }
 
-        RestKortexClient().saveAutomationConfig("new", config)
+        RestKortexClient().automations.saveConfig("new", config)
 
         Json.parseToJsonElement(savedAutomationConfigs["new"].shouldNotBeNull()).shouldBe(config)
     }
@@ -156,13 +166,13 @@ class RestKortexClientTest : KoinTest {
     @Test
     fun `save automation config should fail with the reason on unexpected status`() = runTest {
         shouldThrow<IllegalStateException> {
-            RestKortexClient().saveAutomationConfig("broken", buildJsonObject { })
+            RestKortexClient().automations.saveConfig("broken", buildJsonObject { })
         }.message.shouldContain("Message malformed: broken")
     }
 
     @Test
     fun `delete automation config should delete existing automation`() = runTest {
-        RestKortexClient().deleteAutomationConfig("existing")
+        RestKortexClient().automations.deleteConfig("existing")
 
         deletedAutomationConfigs.shouldContainExactly("existing")
     }
@@ -170,13 +180,13 @@ class RestKortexClientTest : KoinTest {
     @Test
     fun `delete automation config should fail with the reason on unexpected status`() = runTest {
         shouldThrow<IllegalStateException> {
-            RestKortexClient().deleteAutomationConfig("unknown")
+            RestKortexClient().automations.deleteConfig("unknown")
         }.message.shouldContain("Resource not found")
     }
 
     @Test
     fun `build image url should resolve entity picture against configured host`() {
-        RestKortexClient().buildImageUrl("/api/image_proxy/image.test?token=abc")
+        RestKortexClient().images.buildUrl("/api/image_proxy/image.test?token=abc")
             .shouldBe("http://localhost:$testPort/api/image_proxy/image.test?token=abc")
     }
 
@@ -186,13 +196,13 @@ class RestKortexClientTest : KoinTest {
             single { ClientConfig(hostname = "ha.test", port = 8123, token = testToken, secure = true) }
         })
 
-        RestKortexClient().buildImageUrl("/api/image_proxy/image.test?token=abc")
+        RestKortexClient().images.buildUrl("/api/image_proxy/image.test?token=abc")
             .shouldBe("https://ha.test:8123/api/image_proxy/image.test?token=abc")
     }
 
     @Test
     fun `build image url should keep absolute entity picture`() {
-        RestKortexClient().buildImageUrl("https://images.test/picture.png?size=2")
+        RestKortexClient().images.buildUrl("https://images.test/picture.png?size=2")
             .shouldBe("https://images.test/picture.png?size=2")
     }
 }

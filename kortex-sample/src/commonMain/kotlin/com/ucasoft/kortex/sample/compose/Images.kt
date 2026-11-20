@@ -26,7 +26,7 @@ private fun RowScope.Image(image: Image) {
     if (state.attributes.entityPicture != null) {
         AsyncImage(
             modifier = Modifier.weight(1f),
-            model = restClient.buildImageUrl(state.attributes.entityPicture!!),
+            model = restClient.images.buildUrl(state.attributes.entityPicture!!),
             contentDescription = state.attributes.friendlyName
         )
     }

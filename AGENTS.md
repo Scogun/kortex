@@ -95,10 +95,12 @@ service calls, config loading, Flow-based observation, Koin setup.
 -   Two clients, in separate packages:
     -   `client.websocket.WSKortexClient` opens the WebSocket and hands
         out a `KortexContext` for WebSocket commands.
-    -   `client.rest.RestKortexClient` offers `getAutomationConfig`,
-        `saveAutomationConfig`, `deleteAutomationConfig` (the automation
-        config endpoint of §5.1) and `buildImageUrl`. It needs no open
-        WebSocket.
+    -   `client.rest.RestKortexClient` groups REST calls by area. Its
+        `automations` area offers `getConfig`, `saveConfig` and
+        `deleteConfig` (the automation config endpoint of §5.1) through
+        its own Ktor client with that endpoint as base path. Its
+        `images` area offers `buildUrl`, which resolves an entity picture
+        against the configured host. The class needs no open WebSocket.
 -   The Koin module `clientModule` provides two named Ktor clients,
     `websocketClient` and `restClient`. Each carries its connection
     settings as a default request; the REST one also carries the bearer

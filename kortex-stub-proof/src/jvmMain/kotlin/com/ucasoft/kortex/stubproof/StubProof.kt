@@ -18,10 +18,10 @@ class StubProof : KoinComponent {
         if (stubExists()) deleteStub() else createStub()
     }
 
-    private suspend fun stubExists() = client.getAutomationConfig(stubId) != null
+    private suspend fun stubExists() = client.automations.getConfig(stubId) != null
 
     private suspend fun createStub() {
-        client.saveAutomationConfig(stubId, buildJsonObject {
+        client.automations.saveConfig(stubId, buildJsonObject {
             put("alias", "Kortex proof stub")
             put("description", "Stub of the Kortex Phase 0 proof. Safe to delete.")
             putJsonArray("triggers") {
@@ -42,11 +42,11 @@ class StubProof : KoinComponent {
             put("mode", "single")
         })
 
-        println("Created stub $stubId: ${client.getAutomationConfig(stubId)}")
+        println("Created stub $stubId: ${client.automations.getConfig(stubId)}")
     }
 
     private suspend fun deleteStub() {
-        client.deleteAutomationConfig(stubId)
+        client.automations.deleteConfig(stubId)
         check(!stubExists()) { "Stub $stubId is still there after the delete" }
 
         println("Deleted stub $stubId")
