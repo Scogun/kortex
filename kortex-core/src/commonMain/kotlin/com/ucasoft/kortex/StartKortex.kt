@@ -1,10 +1,10 @@
 package com.ucasoft.kortex
 
-import com.ucasoft.kortex.client.KortexClient
-import com.ucasoft.kortex.client.KortexContext
-import com.ucasoft.kortex.client.requests.EventType
+import com.ucasoft.kortex.client.websocket.WSKortexClient
+import com.ucasoft.kortex.client.websocket.KortexContext
+import com.ucasoft.kortex.client.websocket.requests.EventType
 import com.ucasoft.kortex.di.configModule
-import com.ucasoft.kortex.di.webSocketClient
+import com.ucasoft.kortex.di.clientModule
 import com.ucasoft.kortex.entities.Entities
 import com.ucasoft.kortex.entities.Event
 import com.ucasoft.kortex.entities.State
@@ -19,10 +19,10 @@ suspend fun startKortex(
     onEvent: suspend (event: Event) -> Unit
 ) {
     startKoin {
-        modules(configModule, webSocketClient)
+        modules(configModule, clientModule)
     }
 
-    KortexClient().connect(onAuthenticated, onResult, onEvent)
+    WSKortexClient().connect(onAuthenticated, onResult, onEvent)
 }
 
 suspend fun startKortexObservable(

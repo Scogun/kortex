@@ -1,6 +1,6 @@
 package com.ucasoft.kortex.entities
 
-import com.ucasoft.kortex.client.KortexContext
+import com.ucasoft.kortex.client.websocket.KortexContext
 import com.ucasoft.kortex.json
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer

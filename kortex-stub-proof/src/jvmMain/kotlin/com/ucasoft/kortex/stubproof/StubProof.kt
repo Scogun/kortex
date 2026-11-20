@@ -1,17 +1,16 @@
 package com.ucasoft.kortex.stubproof
 
-import com.ucasoft.kortex.client.KortexContext
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
+import com.ucasoft.kortex.client.rest.RestKortexClient
+import kotlinx.serialization.json.*
+import org.koin.core.component.KoinComponent
 
 /**
  * The Phase 0 scenario. Each run creates the stub if it is missing and deletes it otherwise,
  * so the stub can be inspected in HA between two runs.
  */
-class StubProof(private val context: KortexContext) {
+class StubProof : KoinComponent {
+
+    private val client = RestKortexClient()
 
     private val stubId = "kortex_proof_stub"
 
@@ -19,10 +18,10 @@ class StubProof(private val context: KortexContext) {
         if (stubExists()) deleteStub() else createStub()
     }
 
-    private suspend fun stubExists() = context.getAutomationConfig(stubId) != null
+    private suspend fun stubExists() = client.getAutomationConfig(stubId) != null
 
     private suspend fun createStub() {
-        context.saveAutomationConfig(stubId, buildJsonObject {
+        client.saveAutomationConfig(stubId, buildJsonObject {
             put("alias", "Kortex proof stub")
             put("description", "Stub of the Kortex Phase 0 proof. Safe to delete.")
             putJsonArray("triggers") {
@@ -43,11 +42,11 @@ class StubProof(private val context: KortexContext) {
             put("mode", "single")
         })
 
-        println("Created stub $stubId: ${context.getAutomationConfig(stubId)}")
+        println("Created stub $stubId: ${client.getAutomationConfig(stubId)}")
     }
 
     private suspend fun deleteStub() {
-        context.deleteAutomationConfig(stubId)
+        client.deleteAutomationConfig(stubId)
         check(!stubExists()) { "Stub $stubId is still there after the delete" }
 
         println("Deleted stub $stubId")

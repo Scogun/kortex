@@ -8,20 +8,35 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.request
 import io.ktor.http.URLProtocol
+import io.ktor.http.path
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val configModule = module {
     single { ConfigLoader.load() }
 }
 
-val webSocketClient = module {
-    single {
+val clientModule = module {
+    single(named("websocketClient")) {
         HttpClient(CIO) {
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter(json)
             }
+            defaultRequest {
+                val config = get<ClientConfig>()
+                url {
+                    host = config.hostname
+                    port = config.port
+                    path("api/websocket")
+                }
+            }
+        }
+    }
+    single(named("restClient")) {
+        HttpClient(CIO) {
             defaultRequest {
                 val config = get<ClientConfig>()
                 url {

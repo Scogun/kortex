@@ -1,6 +1,7 @@
-package com.ucasoft.kortex.client
+package com.ucasoft.kortex.client.websocket
 
-import com.ucasoft.kortex.client.requests.RequestType
+import com.ucasoft.kortex.client.ClientConfig
+import com.ucasoft.kortex.client.websocket.requests.RequestType
 import com.ucasoft.kortex.entities.Device
 import com.ucasoft.kortex.entities.Entity
 import com.ucasoft.kortex.entities.Event
@@ -8,7 +9,9 @@ import com.ucasoft.kortex.entities.State
 import com.ucasoft.kortex.json
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
+import io.ktor.client.request.request
 import io.ktor.http.*
+import io.ktor.openapi.ParameterType
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -16,10 +19,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 
-class KortexClient : KoinComponent {
+class WSKortexClient : KoinComponent {
 
-    private val cio by inject<HttpClient>()
+    private val cio by inject<HttpClient>(named("websocketClient"))
 
     private val config by inject<ClientConfig>()
 
@@ -32,7 +36,6 @@ class KortexClient : KoinComponent {
             request = {
                 url {
                     protocol = if (config.secure) URLProtocol.WSS else URLProtocol.WS
-                    path("api/websocket")
                 }
             }
         ) {

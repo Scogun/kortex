@@ -1,4 +1,4 @@
-package com.ucasoft.kortex.client
+package com.ucasoft.kortex.client.websocket
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement

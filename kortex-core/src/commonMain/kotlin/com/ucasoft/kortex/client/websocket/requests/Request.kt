@@ -1,4 +1,4 @@
-package com.ucasoft.kortex.client.requests
+package com.ucasoft.kortex.client.websocket.requests
 
 import kotlinx.serialization.Serializable
 

@@ -2,17 +2,16 @@ package com.ucasoft.kortex.compose
 
 import androidx.compose.runtime.*
 import com.ucasoft.kortex.client.ClientConfig
-import com.ucasoft.kortex.client.KortexClient
-import com.ucasoft.kortex.client.KortexContext
-import com.ucasoft.kortex.client.requests.EventType
+import com.ucasoft.kortex.client.websocket.WSKortexClient
+import com.ucasoft.kortex.client.websocket.KortexContext
+import com.ucasoft.kortex.client.websocket.requests.EventType
 import com.ucasoft.kortex.di.configModule
-import com.ucasoft.kortex.di.webSocketClient
+import com.ucasoft.kortex.di.clientModule
 import com.ucasoft.kortex.entities.Entities
 import com.ucasoft.kortex.entities.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.compose.KoinApplication
-import org.koin.compose.LocalKoinApplication
 import org.koin.compose.getKoin
 import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
@@ -40,7 +39,7 @@ fun KortexApplication(
     KoinApplication(
         configuration = koinConfiguration {
             val updatedModules = modules.toMutableList().also {
-                it.addAll(0, listOf(configModule, webSocketClient))
+                it.addAll(0, listOf(configModule, clientModule))
             }
             modules(updatedModules)
         }
@@ -67,7 +66,7 @@ fun KortexApplication(
 
         LaunchedEffect(getKoin()) {
             try {
-                KortexClient().connect(
+                WSKortexClient().connect(
                     {
                         applicationState = applicationState.copy(
                             isLoading = true,
