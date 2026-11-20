@@ -4,9 +4,9 @@
 It provides typed entities, reactive state streams, and Compose integration for building automation apps and tools.
 
 ![GitHub](https://img.shields.io/github/license/Scogun/kortex?color=blue)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.3.10-blue)
-![Ktor](https://img.shields.io/badge/Ktor-3.4.1-blue)
-![Compose](https://img.shields.io/badge/Compose-1.10.2-blue)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-blue)
+![Ktor](https://img.shields.io/badge/Ktor-3.6.1-blue)
+![Compose](https://img.shields.io/badge/Compose-1.12.2-blue)
 
 ---
 * [Features](#features)
@@ -26,6 +26,7 @@ It provides typed entities, reactive state streams, and Compose integration for 
 ## Features
 * Typed entity model for Home Assistant domains (`light`, `sensor`, `switch`, `media_player`, `calendar`, and more)
 * Reactive updates over WebSocket events (`state_changed`)
+* REST client for reading, saving and deleting Home Assistant automation configs
 * Kotlin Flow-based observation APIs
 * Kotlin Multiplatform modules
 * Compose Multiplatform integration module
@@ -39,16 +40,22 @@ It provides typed entities, reactive state streams, and Compose integration for 
   * `:kortex-core`
   * `:kortex-compose`
   * `:kortex-sample`
+  * `:kortex-stub-proof`
+* In progress: running Kotlin automations inside Home Assistant as an add-on. The plan and its open questions are in [AGENTS.md](AGENTS.md).
+* Only the JVM target is built and tested at the moment.
 
 ## Modules
 * `kortex-core`
-  * Home Assistant client, entities, configuration loading, and observable startup APIs
-  * Targets: `jvm`, `linuxX64`, `linuxArm64`, `mingwX64`, `macosX64`, `macosArm64`, `iosX64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
+  * Home Assistant WebSocket client (`WSKortexClient`), REST client (`RestKortexClient`), entities, configuration loading, and observable startup APIs
+  * Declared targets: `jvm`, `linuxX64`, `linuxArm64`, `mingwX64`, `macosArm64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
 * `kortex-compose`
   * Compose integration utilities/components over `kortex-core`
-  * Targets: `jvm`, `macosX64`, `macosArm64`, `iosX64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
+  * Declared targets: `jvm`, `macosArm64`, `iosArm64`, `iosSimulatorArm64`, `js(IR)` (`browser`, `nodejs`)
 * `kortex-sample`
   * Runnable JVM sample apps (desktop Compose + terminal)
+* `kortex-stub-proof`
+  * Throwaway JVM program that checks whether Kortex can create and remove a native Home Assistant automation through the API
+  * Each run creates the automation `kortex_proof_stub` on the configured Home Assistant if it is missing, and deletes it otherwise
 
 ## Quick Start
 ### Requirements
@@ -94,6 +101,11 @@ Use `--console=plain` to prevent Gradle progress UI from injecting lines into li
 Optional Compose hot reload run task:
 ```powershell
 .\gradlew :kortex-sample:hotRunJvm --mainClass=com.ucasoft.kortex.sample.compose.MainKt
+```
+
+Run the stub proof (`com.ucasoft.kortex.stubproof.MainKt`). It changes the configured Home Assistant: it adds or removes the automation `kortex_proof_stub`, and needs a token with admin rights:
+```powershell
+.\gradlew :kortex-stub-proof:jvmRun -DmainClass="com.ucasoft.kortex.stubproof.MainKt" --console=plain -q
 ```
 
 ## Usage

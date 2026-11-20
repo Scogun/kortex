@@ -8,7 +8,7 @@
 > **decision** (agreed with the project owner), **proposal** (a candidate
 > design that must be validated), **open question**.
 
-Last revised: 2026-11-19.
+Last revised: 2026-11-20.
 
 ## 1. Product vision
 
@@ -65,11 +65,11 @@ longer the plan:
     user-facing execution models. There is now one user-facing concept:
     a Kotlin automation.
 
-## 4. Repository snapshot (facts, verified 2026-11-19)
+## 4. Repository snapshot (facts, verified 2026-11-20)
 
-Gradle modules: `kortex-core`, `kortex-compose`, `kortex-sample`. There is
-no runtime, add-on, custom integration, editor or automation-definition
-module.
+Gradle modules: `kortex-core`, `kortex-compose`, `kortex-sample`,
+`kortex-stub-proof`. There is no runtime, add-on, custom integration,
+editor or automation-definition module.
 
 Versions from the catalog: Kotlin 2.4.21, Ktor 3.6.1, Koin 4.2.2,
 Compose 1.12.2, Kotest 6.2.7. Group `com.ucasoft.kortex`, version `0.0.1`,
@@ -77,27 +77,48 @@ JDK toolchain 17.
 
 ### 4.1 `kortex-core`
 
-Kotlin Multiplatform library: HA WebSocket client, auth, request/response
-models, typed entity wrappers, state and event models, service calls,
-config loading, Flow-based observation, Koin setup.
+Kotlin Multiplatform library: HA WebSocket client, HA REST client, auth,
+request/response models, typed entity wrappers, state and event models,
+service calls, config loading, Flow-based observation, Koin setup.
 
 -   Declared targets: JVM, `linuxX64`, `linuxArm64`, `mingwX64`,
     `macosArm64`, JS (browser, Node.js), `iosArm64`,
     `iosSimulatorArm64`. Only `jvmTest` tests exist. A declared target is
-    not evidence that it compiles, links or runs.
+    not evidence that it compiles, links or runs: the JS target does not
+    compile today (`ConfigLoader.web.kt` references
+    `_root_ide_package_`), and the native targets have not been tried.
 -   Entry points: `startKortex` (callback API) and `startKortexObservable`
     (gives an `Entities` object backed by a `StateFlow` of all states).
 -   `Entities` exposes per-domain lists (`lights`, `switches`, …) of typed
     wrappers such as `ToggleableEntity` with `turnOn()`, `turnOff()`,
     `toggle()`, `onToggled { }`.
+-   Two clients, in separate packages:
+    -   `client.websocket.WSKortexClient` opens the WebSocket and hands
+        out a `KortexContext` for WebSocket commands.
+    -   `client.rest.RestKortexClient` offers `getAutomationConfig`,
+        `saveAutomationConfig`, `deleteAutomationConfig` (the automation
+        config endpoint of §5.1) and `buildImageUrl`. It needs no open
+        WebSocket.
+-   The Koin module `clientModule` provides two named Ktor clients,
+    `websocketClient` and `restClient`. Each carries its connection
+    settings as a default request; the REST one also carries the bearer
+    token.
 
 Properties of the current Core that matter for the plan below:
 
--   `KortexClient` hardcodes the WebSocket path `api/websocket`. The
-    Supervisor proxy an add-on uses has a different path (§5.2), so the
-    path must become configurable.
+-   The WebSocket path `api/websocket` is hardcoded in the default
+    request of `websocketClient`, and the REST paths start with `api/`.
+    The Supervisor proxy an add-on uses has different paths (§5.2), so
+    both must become configurable.
+-   Only `state_changed` events can be subscribed to (`EventType` has one
+    value), and every incoming event is decoded as a state change. A
+    custom event, such as a stub hand-off (§5.1), cannot be received yet.
+-   Core's public API uses kotlinx.coroutines and kotlinx.serialization
+    types, but both arrive through `implementation` dependencies. A
+    consumer that depends only on Core cannot compile against them.
 -   `startKortex` calls the global `startKoin`, so only one client can be
-    started per process.
+    started per process. `RestKortexClient` also resolves its Ktor client
+    and config from the global Koin.
 -   `KortexContext` is a concrete class holding a Ktor
     `DefaultClientWebSocketSession`; every entity wrapper takes it
     directly.
@@ -115,6 +136,17 @@ Properties of the current Core that matter for the plan below:
 `kortex-compose` holds Compose integration utilities over Core.
 `kortex-sample` holds runnable samples (terminal status view, desktop
 Compose app). Neither is the add-on UI or the editor.
+
+### 4.3 `kortex-stub-proof`
+
+A throwaway JVM program for Phase 0 (§7), not the Runtime. Each run looks
+up the HA automation with id `kortex_proof_stub` through
+`RestKortexClient`: if it is missing the run creates it, otherwise the
+run deletes it. The stub has an event trigger (`kortex_proof_trigger`)
+and one action that fires the event `kortex_proof_hand_off` with the
+automation id. It writes to the HA instance configured through
+`application.conf`, so run it only against an instance where that is
+acceptable.
 
 ## 5. Architecture
 
@@ -189,6 +221,39 @@ Everything below is **proposal / to prototype**:
 -   Generated stubs may contain templates to pass trigger data. That is
     fine; the goal is that users never write them.
 
+Checked so far (facts; each states how it was checked):
+
+-   On HA 2026.11.2, with the Phase 0 proof: a `POST` to the config
+    endpoint with a free-form string id created a stub, and a `GET`
+    returned it with the id added. HA loaded it at once, without a
+    restart, and enabled it. The entity id came from the alias, not from
+    the id. That instance includes `automations.yaml`; the case without
+    it is still unchecked.
+-   Delete through the endpoint is covered by unit tests only; its effect
+    on a real instance is not recorded yet.
+-   From the HA source at tag 2026.11.2, not yet tried on an instance:
+    -   The endpoint is admin-only, rewrites the whole `automations.yaml`
+        (so hand-written comments in it are lost) and then reloads that
+        one automation. `DELETE` also removes the entity.
+    -   `automation.trigger` runs the actions even when the automation is
+        turned off; only real triggers check the enabled state. A
+        Kotlin-side trigger must therefore check the stub's state itself.
+    -   Each run fires `automation_triggered` with the stub id and a run
+        id.
+    -   Traces can be read only through the WebSocket commands
+        `trace/list` and `trace/get`.
+-   From HA's official developer documentation, read 2026-11-20: neither
+    the config endpoint nor the trace commands are documented. The
+    WebSocket commands `subscribe_trigger` and `fire_event` are.
+-   From the HA source at older tags: the same config view is registered
+    in 0.50.2, 0.100.0 and 2021.1.0. The payload those versions accept
+    was not checked.
+
+Documented alternatives to the config endpoint, not evaluated yet:
+writing the stub YAML into HA's config directory and calling
+`automation.reload`; or receiving HA triggers through `subscribe_trigger`
+with no stub, which gives up the native automation of goal 4.
+
 ### 5.2 Runtime
 
 One JVM process inside the add-on. It owns the HA connection, the
@@ -197,7 +262,9 @@ automation registry, builds, loading and unloading, logs and stub sync.
 -   **HA connection.** In an add-on, reach HA through the Supervisor proxy
     (`ws://supervisor/core/websocket` and `http://supervisor/core/api`,
     authenticated with `SUPERVISOR_TOKEN`; the add-on must request HA API
-    access). Verify these when implementing. Keep Supervisor specifics
+    access with `homeassistant_api: true`). HA's add-on documentation
+    confirms these (read 2026-11-20); they have not been tried from an
+    add-on. Keep Supervisor specifics
     behind a small adapter so the Container case (§5.9) can supply a URL
     and long-lived token instead.
 -   **Hosting model (proposal).** All automations run in the one Runtime
@@ -354,6 +421,13 @@ configurable in Core as needed.
 
 Deliverable: a written result for open questions 1–4 with the HA version
 tested.
+
+Status on 2026-11-20: the proof program exists (§4.3). Creating a stub is
+done and was run against HA 2026.11.2; deleting is implemented but not
+yet recorded against an instance (§5.1). Still open: the trigger reaching
+Kotlin code (blocked on custom events in Core, §4.1), disabling, the
+trace, `automation.trigger`, and updating. The written result does not
+exist yet.
 
 ### Phase 1 — Build and load proof
 
