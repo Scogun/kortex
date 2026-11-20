@@ -15,5 +15,8 @@ class SubscribeEventRequest(
 enum class EventType {
 
     @SerialName("state_changed")
-    STATE_CHANGED
+    STATE_CHANGED,
+
+    @SerialName("automation_triggered")
+    AUTOMATION_TRIGGERED
 }
