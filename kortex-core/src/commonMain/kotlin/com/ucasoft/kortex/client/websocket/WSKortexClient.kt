@@ -100,7 +100,7 @@ class WSKortexClient : KoinComponent {
                                     }
                                 }
                             } else {
-                                println("Request ${response.id} failed: ${response.message}")
+                                println("Request ${response.id} failed: ${response.message ?: response.error?.message}")
                             }
                         }
 

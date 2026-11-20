@@ -11,5 +11,12 @@ data class CommonResponse(
     val event: JsonObject? = null,
     val message: String? = null,
     val result: JsonElement? = null,
-    val success: Boolean? = null
+    val success: Boolean? = null,
+    val error: Error? = null
+)
+
+@Serializable
+data class Error(
+    val code: String? = null,
+    val message: String? = null
 )
