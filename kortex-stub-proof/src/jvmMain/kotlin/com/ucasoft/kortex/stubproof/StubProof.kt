@@ -1,21 +1,49 @@
 package com.ucasoft.kortex.stubproof
 
 import com.ucasoft.kortex.client.rest.RestKortexClient
+import com.ucasoft.kortex.client.websocket.KortexContext
+import com.ucasoft.kortex.client.websocket.requests.EventType
+import com.ucasoft.kortex.entities.Trace
+import com.ucasoft.kortex.startKortex
 import kotlinx.serialization.json.*
-import org.koin.core.component.KoinComponent
+import kotlin.system.exitProcess
 
 /**
- * The Phase 0 scenario. Each run creates the stub if it is missing and deletes it otherwise,
- * so the stub can be inspected in HA between two runs.
+ * The Phase 0 scenario. A run deletes the stub and exits if the stub exists. Otherwise it creates
+ * the stub and runs the Kotlin body each time HA reports a run of the stub, until stopped.
  */
-class StubProof : KoinComponent {
+class StubProof {
 
     private val client = RestKortexClient()
 
     private val stubId = "kortex_proof_stub"
 
+    private lateinit var context: KortexContext
+
     suspend fun run() {
-        if (stubExists()) deleteStub() else createStub()
+        startKortex(
+            onAuthenticated = { context ->
+                this.context = context
+                if (!stubExists()) {
+                    createStub()
+                } else {
+                    //deleteStub()
+                }
+                context.subscribeEvents(EventType.AUTOMATION_TRIGGERED)
+                println("Listening for runs of $stubId. Run the stub in HA, and stop this run when done.")
+            },
+            onResult = { _, result ->
+                if (result is Trace) {
+                    automationBody(result)
+                }
+            },
+            onEvent = { event ->
+                val runId = event.data.runId
+                if (event.data.itemId != null && runId != null) {
+                    context.getTrace(event.data.itemId!!, runId)
+                }
+            }
+        )
     }
 
     private suspend fun stubExists() = client.automations.getConfig(stubId) != null
@@ -28,17 +56,16 @@ class StubProof : KoinComponent {
                 addJsonObject {
                     put("trigger", "event")
                     put("event_type", "kortex_proof_trigger")
+                    put("id", "first")
+                }
+                addJsonObject {
+                    put("trigger", "event")
+                    put("event_type", "kortex_proof_other_trigger")
+                    put("id", "second")
                 }
             }
             putJsonArray("conditions") { }
-            putJsonArray("actions") {
-                addJsonObject {
-                    put("event", "kortex_proof_hand_off")
-                    putJsonObject("event_data") {
-                        put("automation_id", stubId)
-                    }
-                }
-            }
+            putJsonArray("actions") { }
             put("mode", "single")
         })
 
@@ -50,5 +77,13 @@ class StubProof : KoinComponent {
         check(!stubExists()) { "Stub $stubId is still there after the delete" }
 
         println("Deleted stub $stubId")
+        exitProcess(0)
+    }
+
+    // Stands in for the Kotlin code of the automation the stub belongs to.
+    private fun automationBody(trace: Trace) {
+        val trigger = trace.trigger
+        println("Kotlin body runs for ${trace.itemId}, trigger ${trigger?.id}, HA run ${trace.runId}")
+        println("  ${trigger?.platform} on ${trigger?.entityId}: ${trigger?.fromState?.state} -> ${trigger?.toState?.state}")
     }
 }

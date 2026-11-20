@@ -112,9 +112,19 @@ Properties of the current Core that matter for the plan below:
     request of `websocketClient`, and the REST paths start with `api/`.
     The Supervisor proxy an add-on uses has different paths (§5.2), so
     both must become configurable.
--   Only `state_changed` events can be subscribed to (`EventType` has one
-    value), and every incoming event is decoded as a state change. A
-    custom event, such as a stub hand-off (§5.1), cannot be received yet.
+-   The `EventType` enum lists HA's own events: `STATE_CHANGED` and
+    `AUTOMATION_TRIGGERED`. Kortex defines no event of its own.
+-   Every subscribed event arrives at the `onEvent` callback as an
+    `Event`. Its `EventData` keeps `entity_id`; for state changes the
+    old and new state; and for `automation_triggered` the `item_id` (the
+    automation's config id) and `run_id`. Other fields are dropped.
+-   `KortexContext.getTrace(itemId, runId)` requests the trace of one
+    automation run (`trace/get`). The answer reaches `onResult` as a
+    `Trace`. Its `trigger` gives the trigger that started the run as a
+    `TraceTrigger`: id, index, platform, description, entity id and the
+    old and new state. `rawTrigger` has the same as raw JSON, for fields
+    that only some trigger kinds have. For a run started by hand the id
+    and the platform are null.
 -   Core's public API uses kotlinx.coroutines and kotlinx.serialization
     types, but both arrive through `implementation` dependencies. A
     consumer that depends only on Core cannot compile against them.
@@ -141,14 +151,19 @@ Compose app). Neither is the add-on UI or the editor.
 
 ### 4.3 `kortex-stub-proof`
 
-A throwaway JVM program for Phase 0 (§7), not the Runtime. Each run looks
-up the HA automation with id `kortex_proof_stub` through
-`RestKortexClient`: if it is missing the run creates it, otherwise the
-run deletes it. The stub has an event trigger (`kortex_proof_trigger`)
-and one action that fires the event `kortex_proof_hand_off` with the
-automation id. It writes to the HA instance configured through
-`application.conf`, so run it only against an instance where that is
-acceptable.
+A throwaway JVM program for Phase 0 (§7), not the Runtime. `StubProof`
+connects through `startKortex` and looks up the HA automation with id
+`kortex_proof_stub` through `RestKortexClient`. If the stub is missing,
+the run creates it. The run then subscribes to HA's
+`automation_triggered` event. For each event that carries an `item_id`,
+for any automation, it requests the trace of that run, and when the trace
+arrives it calls a Kotlin function that stands in for the automation
+body and prints the trigger id, until the run is stopped. The stub has
+two event triggers with ids (`kortex_proof_trigger` as `first`,
+`kortex_proof_other_trigger` as `second`) and no actions. Deleting the
+stub is implemented but switched off at the moment. It writes to the HA
+instance configured through `application.conf`, so run it only against
+an instance where that is acceptable.
 
 ## 5. Architecture
 
@@ -201,14 +216,19 @@ Everything below is **proposal / to prototype**:
     documented public API; verify behaviour and stability against the HA
     versions to be supported, and check what happens when the user's
     configuration does not include `automations.yaml`.
--   **Hand-off to Kortex.** Two candidates:
+-   **Hand-off to Kortex.** Three candidates:
     (a) the stub fires an HA event that the Runtime receives over its
     WebSocket subscription — needs no custom integration, but HA does
     not learn whether the Kotlin body succeeded;
     (b) the stub calls an action registered by a companion integration,
     which forwards to the Runtime and can report failure back into the
     trace. A WebSocket API client cannot register actions, so (b)
-    requires the integration.
+    requires the integration;
+    (c) the Runtime subscribes to HA's built-in `automation_triggered`
+    event and picks out its own stubs — needs no custom event, no
+    template and no action in the stub, but the event names only the
+    automation and the run, not what triggered it. The Phase 0 proof
+    currently tries (c).
 -   **Kotlin-side triggers.** Some triggers cannot be expressed as HA
     triggers (for example a combination of Flows). Candidate: the Runtime
     evaluates them, respects the stub's enabled state, and starts the run
@@ -240,10 +260,33 @@ Checked so far (facts; each states how it was checked):
     -   `automation.trigger` runs the actions even when the automation is
         turned off; only real triggers check the enabled state. A
         Kotlin-side trigger must therefore check the stub's state itself.
-    -   Each run fires `automation_triggered` with the stub id and a run
-        id.
+    -   Each run fires `automation_triggered` with the automation's name
+        and entity id, plus its config id and a run id when it has a
+        config id. The event is fired before the first action, also when
+        the action list is empty, and the schema accepts an empty action
+        list.
     -   Traces can be read only through the WebSocket commands
-        `trace/list` and `trace/get`.
+        `trace/list` and `trace/get`. The first step of an automation
+        trace is the trigger step: its path is `trigger/<index>` (plain
+        `trigger` for a run started by hand) and its changed variables
+        hold the whole `trigger` variable of the run.
+-   On HA 2026.11.2, over the Core WebSocket connection: an
+    `automation_triggered` event arrived for one of the instance's own
+    automations, with the data keys `name`, `entity_id`, `item_id` and
+    `run_id`. For a real trigger it also carried `source`, a text such
+    as "state of switch.x", which is the same for two triggers on one
+    entity; the trigger id is not in the event.
+-   Reported by the project owner on 2026-11-20, output not recorded:
+    the proof worked against that instance with a stub that has no
+    actions, up to the stand-in Kotlin body being called.
+-   On HA 2026.11.2, over the Core WebSocket connection: `trace/get`
+    for a finished run of one of the instance's own automations returned
+    a trace whose first step is `trigger/3`. That step's `trigger`
+    variable held `id` (the id given to the trigger in the config),
+    `idx`, `platform`, `description`, `entity_id`, `from_state`,
+    `to_state` and `for`. Core's `Trace` model decodes that answer and
+    yields the trigger id. So the trace gives both which trigger fired
+    and its details. The same has not been recorded for a Kortex stub.
 -   From HA's official developer documentation, read 2026-11-20: neither
     the config endpoint nor the trace commands are documented. The
     WebSocket commands `subscribe_trigger` and `fire_event` are.
@@ -426,10 +469,13 @@ tested.
 
 Status on 2026-11-20: the proof program exists (§4.3). Creating a stub is
 done and was run against HA 2026.11.2; deleting is implemented but not
-yet recorded against an instance (§5.1). Still open: the trigger reaching
-Kotlin code (blocked on custom events in Core, §4.1), disabling, the
-trace, `automation.trigger`, and updating. The written result does not
-exist yet.
+yet recorded against an instance (§5.1). The proof listens for
+`automation_triggered` (hand-off candidate (c), §5.1) and a stub's run
+reaches the stand-in Kotlin body (§5.1, owner's report). It now also
+reads the trigger id from the run's trace; that was seen working for an
+existing automation of the instance, not yet for a stub. Still open:
+disabling, `automation.trigger`, and updating. The written result does
+not exist yet.
 
 ### Phase 1 — Build and load proof
 
