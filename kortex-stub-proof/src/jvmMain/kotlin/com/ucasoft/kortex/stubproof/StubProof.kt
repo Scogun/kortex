@@ -3,8 +3,10 @@ package com.ucasoft.kortex.stubproof
 import com.ucasoft.kortex.client.rest.RestKortexClient
 import com.ucasoft.kortex.client.websocket.KortexContext
 import com.ucasoft.kortex.client.websocket.requests.EventType
+import com.ucasoft.kortex.typed.AutomationTriggeredEvent
 import com.ucasoft.kortex.entities.Trace
-import com.ucasoft.kortex.startKortex
+import com.ucasoft.kortex.typed.startKortex
+import com.ucasoft.kortex.typed.EventListener
 import kotlinx.serialization.json.*
 import kotlin.system.exitProcess
 
@@ -37,10 +39,9 @@ class StubProof {
                     automationBody(result)
                 }
             },
-            onEvent = { event ->
-                val runId = event.data.runId
-                if (event.data.itemId != null && runId != null) {
-                    context.getTrace(event.data.itemId!!, runId)
+            eventListener = object : EventListener {
+                override suspend fun onAutomationTriggered(event: AutomationTriggeredEvent) {
+                    context.getTrace(event.itemId, event.runId)
                 }
             }
         )
