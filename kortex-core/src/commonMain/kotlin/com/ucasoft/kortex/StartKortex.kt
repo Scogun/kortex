@@ -61,7 +61,7 @@ suspend fun startKortexObservable(
         }
     ) {
         if (it.type == EventType.STATE_CHANGED.toString().lowercase()) {
-            update(it.data.entityId, it.data.newState)
+            update(it.data!!.entityId, it.data.newState)
         }
     }
 }

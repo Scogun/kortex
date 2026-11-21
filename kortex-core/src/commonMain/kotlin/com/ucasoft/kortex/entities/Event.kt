@@ -8,7 +8,7 @@ import kotlin.time.Instant
 data class Event(
     @SerialName("event_type")
     val type: String,
-    val data: EventData,
+    val data: EventData? = null,
     @SerialName("time_fired")
     val timeFired: Instant,
 )
